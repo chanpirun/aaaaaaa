@@ -10,10 +10,10 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 w-full transition-all duration-300">
       <div className="w-full bg-white/90 backdrop-blur-md border-b border-gray-200 shadow-sm">
-        <div className="flex flex-col gap-3 px-4 py-4 md:flex-row md:items-center md:justify-between md:px-6">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-4">
-              <div className="relative h-20 w-20 overflow-hidden rounded-[1.75rem]shadow-[0_18px_45px_-20px_rgba(15,23,42,0.7)]">
+        <div className="flex flex-col gap-2 px-4 py-2.5 md:flex-row md:items-center md:justify-between md:px-6">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-3">
+              <div className="relative h-14 w-14 overflow-hidden rounded-[1.25rem]shadow-[0_12px_30px_-15px_rgba(15,23,42,0.6)]">
                 <Image
                   src="/RadiceLogoNoText_light.svg"
                   alt="RaDiCe Logo"
@@ -23,7 +23,7 @@ export default function Header() {
                 />
               </div>
               <div>
-                <p className="text-base md:text-lg font-semibold uppercase tracking-[0.22em] text-slate-900">
+                <p className="text-sm md:text-base font-semibold uppercase tracking-[0.22em] text-slate-900">
                   RaDiCe WMS
                 </p>
                 <p className="mt-1 text-[0.68rem] uppercase tracking-[0.35em] text-slate-500">

@@ -1,6 +1,10 @@
 "use client";
 
+import { useState } from "react";
+
 export default function JoinUsPage() {
+  const [isRobotChecked, setIsRobotChecked] = useState(false);
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-[#f8f7ff] via-white to-[#eef2ff] py-24 px-6">
 
@@ -107,11 +111,24 @@ export default function JoinUsPage() {
             </div>
 
 
-            {/* Fake recaptcha style box */}
-            <div className="border rounded-2xl p-5 flex items-center justify-between">
+            {/* Interactive reCAPTCHA checkbox */}
+            <div 
+              className="border-2 rounded-2xl p-5 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition"
+              onClick={() => setIsRobotChecked(!isRobotChecked)}
+            >
               <div className="flex items-center gap-4">
-                <div className="w-6 h-6 border-2 rounded-sm" />
-                <span className="text-slate-700 text-sm">
+                <div 
+                  className={`w-6 h-6 border-2 rounded-sm flex items-center justify-center transition ${
+                    isRobotChecked 
+                      ? "bg-indigo-600 border-indigo-600" 
+                      : "border-slate-300"
+                  }`}
+                >
+                  {isRobotChecked && (
+                    <span className="text-white text-xs font-bold">✓</span>
+                  )}
+                </div>
+                <span className="text-slate-700 text-sm font-medium">
                   I'm not a robot
                 </span>
               </div>
@@ -123,6 +140,7 @@ export default function JoinUsPage() {
 
 
             <button
+              disabled={!isRobotChecked}
               className="
                 w-full
                 py-4
@@ -134,6 +152,9 @@ export default function JoinUsPage() {
                 shadow-lg
                 hover:scale-[1.02]
                 transition
+                disabled:opacity-50
+                disabled:cursor-not-allowed
+                disabled:hover:scale-100
               "
             >
               Apply Now
