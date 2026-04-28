@@ -3,9 +3,12 @@
 import Image from "next/image";
 import { useState } from "react";
 import Link from "next/link";
+import Auth from "./auth/auth";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
+  const [authMode, setAuthMode] = useState<"login" | "register">("login");
 
   return (
     <header className="sticky top-0 z-50 w-full transition-all duration-300">
@@ -60,10 +63,20 @@ export default function Header() {
           </div>
 
           <div className="hidden items-center gap-3 md:flex">
-            <button className="px-4 py-1.5 text-sm rounded-lg border border-gray-300 hover:bg-gray-100">
+            <button 
+              onClick={() => {
+                setAuthMode("login");
+                setShowAuth(true);
+              }}
+              className="px-4 py-1.5 text-sm rounded-lg border border-gray-300 hover:bg-gray-100 transition">
               Login
             </button>
-            <button className="px-4 py-1.5 text-sm rounded-lg bg-black text-white hover:bg-gray-800">
+            <button 
+              onClick={() => {
+                setAuthMode("register");
+                setShowAuth(true);
+              }}
+              className="px-4 py-1.5 text-sm rounded-lg bg-black text-white hover:bg-gray-800 transition">
               Get Started
             </button>
           </div>
@@ -95,16 +108,49 @@ export default function Header() {
               JOIN US
             </Link>
           </nav>
-          <div className="flex flex-col gap-2 border-t border-gray-200 px-4 pt-4 pb-4">
-            <button className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-              Login
-            </button>
-            <button className="w-full rounded-lg bg-black px-4 py-2 text-sm text-white hover:bg-gray-800">
-              Sign Up
-            </button>
-          </div>
-        </div>
-      </div>
-    </header>
-  );
-}
+           <div className="flex flex-col gap-2 border-t border-gray-200 px-4 pt-4 pb-4">
+             <button 
+               onClick={() => {
+                 setAuthMode("login");
+                 setShowAuth(true);
+                 setMenuOpen(false);
+               }}
+               className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
+               Login
+             </button>
+             <button 
+               onClick={() => {
+                 setAuthMode("register");
+                 setShowAuth(true);
+                 setMenuOpen(false);
+               }}
+               className="w-full rounded-lg bg-black px-4 py-2 text-sm text-white hover:bg-gray-800 transition">
+               Sign Up
+             </button>
+           </div>
+         </div>
+       </div>
+
+       {/* Auth Modal */}
+       {showAuth && (
+         <div 
+           className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+           onClick={() => setShowAuth(false)}
+         >
+           <div 
+             className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-8 md:p-10 relative"
+             onClick={(e) => e.stopPropagation()}
+           >
+             <button 
+               onClick={() => setShowAuth(false)}
+               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl"
+             >
+               ✕
+             </button>
+             <Auth />
+           </div>
+         </div>
+       )}
+     </header>
+   );
+ }
