@@ -68,7 +68,7 @@ export default function Header() {
                 setAuthMode("login");
                 setShowAuth(true);
               }}
-              className="px-4 py-1.5 text-sm rounded-lg border border-gray-300 hover:bg-gray-100 transition">
+              className="px-4 py-2 text-sm rounded-lg border border-gray-300 hover:bg-gray-100 transition">
               Login
             </button>
             <button 
@@ -76,7 +76,7 @@ export default function Header() {
                 setAuthMode("register");
                 setShowAuth(true);
               }}
-              className="px-4 py-1.5 text-sm rounded-lg bg-black text-white hover:bg-gray-800 transition">
+              className="px-4 py-2 text-sm rounded-lg bg-black text-white hover:bg-gray-800 transition">
               Get Started
             </button>
           </div>

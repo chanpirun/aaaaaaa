@@ -1,55 +1,88 @@
+import Link from "next/link";
+
 export default function Footer() {
   return (
-    <footer className="w-full mt-20 border-t border-gray-200">
-      <div className="max-w-6xl mx-auto px-6 py-10 grid md:grid-cols-4 gap-8 text-sm text-gray-600">
-        
-        {/* Brand */}
+    <footer
+      className="w-full text-slate-800 border-t border-slate-200"
+      style={{
+        backgroundColor: "#ffffff",
+        backgroundImage: "radial-gradient(circle, #c7d2fe 1px, transparent 1px)",
+        backgroundSize: "24px 24px",
+      }}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
+
+        {/* Logo */}
         <div>
-          <h2 className="font-semibold text-black mb-2">NovaLab</h2>
-          <p className="text-gray-500">
-            AI-powered research platform to explore insights faster and smarter.
+          <h2 className="text-xl font-bold mb-3 tracking-wide text-indigo-900">RADICE WMS</h2>
+          <div className="w-full h-0.5 bg-linear-to-r from-indigo-500 to-transparent mb-5" />
+          <p className="text-slate-500 text-sm leading-relaxed">
+            A research and development center for tranforming ideas and research into real world projects.
           </p>
         </div>
 
-        {/* Links */}
+        {/* Quick Links */}
         <div>
-          <h3 className="font-medium text-black mb-2">Product</h3>
-          <ul className="space-y-1">
-            <li>Features</li>
-            <li>Integrations</li>
-            <li>API</li>
+          <h3 className="text-base font-bold mb-3 tracking-wide text-indigo-900">Quick Links</h3>
+          <div className="w-full h-0.5 bg-linear-to-r from-indigo-500 to-transparent mb-5" />
+          <ul className="text-sm text-slate-500">
+            {[
+              { label: "Who We Are", href: "/whoweare" },
+              { label: "Media",      href: "#media" },
+              { label: "Join Us",    href: "/joinus" },
+            ].map(({ label, href }) => (
+              <li key={label} className="flex items-center gap-2 border-b border-slate-200 py-3">
+                <span className="text-indigo-400 text-xs">&#8594;</span>
+                <Link href={href} className="hover:text-indigo-700 transition-colors">
+                  {label}
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
 
+        {/* Find Us */}
         <div>
-          <h3 className="font-medium text-black mb-2">Company</h3>
-          <ul className="space-y-1">
-            <li>About</li>
-            <li>Careers</li>
-            <li>Blog</li>
-          </ul>
+          <h3 className="text-base font-bold mb-3 tracking-wide text-indigo-900">Find Us</h3>
+          <div className="w-full h-0.5 bg-linear-to-r from-indigo-500 to-transparent mb-5" />
+          <div className="text-sm text-slate-500 space-y-3 leading-relaxed">
+            <p>
+              No. 8, St. 315,<br />
+              Boeng Kak 1, Tuol Kork,<br />
+              Phnom Penh, Cambodia, 12151
+            </p>
+            <p className="text-indigo-600 font-medium">example@paragoniu.edu.kh</p>
+          </div>
+          <div className="w-full h-0.5 bg-linear-to-r from-indigo-500 to-transparent mt-6" />
         </div>
 
+        {/* Location */}
         <div>
-          <h3 className="font-medium text-black mb-2">Support</h3>
-          <ul className="space-y-1">
-            <li>Help Center</li>
-            <li>Contact</li>
-            <li>Privacy Policy</li>
-          </ul>
+          <h3 className="text-base font-bold mb-3 tracking-wide text-indigo-900">Location</h3>
+          <div className="w-full h-0.5 bg-linear-to-r from-indigo-500 to-transparent mb-5" />
+          <div className="w-full h-40 sm:h-48 lg:h-44 rounded overflow-hidden shadow-sm">
+            <iframe
+              src="https://maps.google.com/maps?q=Paragon+International+University+Phnom+Penh+Cambodia&output=embed"
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </div>
         </div>
 
       </div>
 
-      {/* Bottom */}
-      <div className="w-full bg-[#111] border-t border-white/10">
-  <div className="text-center text-sm text-gray-400 py-5">
-    Powered By ParagonIU Cloud © {new Date().getFullYear()}{" "}
-    <span className="text-gray-300 font-medium">
-       All rights reserved.
-    </span>. 
-  </div>
-</div>
+      {/* Bottom bar */}
+      <div className="border-t border-slate-200 bg-white/60 backdrop-blur-sm">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-1 text-sm text-slate-500 py-4 px-4 text-center">
+          <span>Powered By ParagonIU Cloud &copy; {new Date().getFullYear()}</span>
+          <span className="hidden sm:inline">·</span>
+          <span className="text-slate-700 font-medium">All rights reserved.</span>
+        </div>
+      </div>
     </footer>
   );
 }
