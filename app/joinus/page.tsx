@@ -129,7 +129,7 @@ export default function JoinUsPage() {
                   )}
                 </div>
                 <span className="text-slate-700 text-sm font-medium">
-                  I'm not a robot
+                  I am not a robot
                 </span>
               </div>
 
