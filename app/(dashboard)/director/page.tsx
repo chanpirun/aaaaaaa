@@ -66,7 +66,7 @@ export default function DirectorPage() {
     useState<DirectorSidebarItemId>("dashboard");
 
   return (
-    <div className="flex h-[calc(100dvh-5rem)] min-h-0 overflow-hidden">
+    <div className="flex h-full min-h-0 overflow-hidden">
       <DirectorSidebar activeItem={activeItem} onItemSelect={setActiveItem} />
 
       <main className="flex-1 overflow-auto bg-linear-to-br from-[#f8f7ff] via-[#f1efff] to-[#e9ecff] p-8">

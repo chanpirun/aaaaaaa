@@ -59,14 +59,7 @@ export default function Hero() {
     "
   >
     <span className="flex items-center gap-2">
-      <span
-        className="
-          w-2 h-2 rounded-full
-          bg-indigo-500
-          group-hover:scale-125
-          transition
-        "
-      />
+      
       Research & Development
     </span>
   </button>

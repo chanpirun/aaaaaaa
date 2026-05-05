@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export default function Footer() {
@@ -14,8 +15,25 @@ export default function Footer() {
 
         {/* Logo */}
         <div>
-          <h2 className="text-xl font-bold mb-3 tracking-wide text-indigo-900">RADICE WMS</h2>
-          <div className="w-full h-0.5 bg-linear-to-r from-indigo-500 to-transparent mb-5" />
+          <div className="flex items-center gap-3 mb-3">
+            <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-[1.25rem]">
+              <Image
+                src="/RadiceLogoNoText_light.svg"
+                alt="RaDiCe Logo"
+                fill
+                sizes="56"
+                className="cover"
+              />
+            </div>
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-slate-900">
+                RaDiCe WMS
+              </p>
+              <p className="mt-1 text-[0.68rem] uppercase tracking-[0.35em] text-slate-500">
+                Research Center
+              </p>
+            </div>
+          </div>
           <p className="text-slate-500 text-sm leading-relaxed">
             A research and development center for tranforming ideas and research into real world projects.
           </p>

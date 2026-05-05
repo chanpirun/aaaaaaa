@@ -22,10 +22,10 @@ export default function AllProject() {
       <div className="mb-6 flex items-end justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-700">
-            Repository
+            Project Showcase
           </p>
           <h1 className="mt-2 text-3xl font-bold text-slate-950">
-            All Projects
+            Repository
           </h1>
         </div>
 

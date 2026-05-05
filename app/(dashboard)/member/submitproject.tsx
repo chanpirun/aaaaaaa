@@ -5,7 +5,7 @@ import {
   Database,
   FileArchive,
   FileText,
-  Image,
+  Image as ImageIcon,
   Link2,
   Send,
   Tags,
@@ -25,8 +25,22 @@ export default function SubmitProject() {
   const [authorType, setAuthorType] = useState<"individual" | "team">(
     "individual",
   );
+  const [teamMembers, setTeamMembers] = useState<string[]>([]);
+  const [memberInput, setMemberInput] = useState("");
 
   const authorValue = authorType === "individual" ? currentUserName : "";
+
+  function addMember() {
+    const name = memberInput.trim();
+    if (name && !teamMembers.includes(name)) {
+      setTeamMembers((prev) => [...prev, name]);
+    }
+    setMemberInput("");
+  }
+
+  function removeMember(name: string) {
+    setTeamMembers((prev) => prev.filter((m) => m !== name));
+  }
 
   return (
     <section className="mx-auto max-w-5xl">
@@ -126,21 +140,46 @@ export default function SubmitProject() {
               value={authorValue}
             />
           ) : (
-            <textarea
-              className={`${inputClass} min-h-24 resize-y`}
-              name="authors"
-              placeholder="Enter team member names"
-              required
-            />
+            <div className="rounded-lg border border-slate-200 bg-white px-3 py-2.5 shadow-sm transition focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-100">
+              {teamMembers.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {teamMembers.map((name) => (
+                    <span
+                      key={name}
+                      className="inline-flex items-center gap-1.5 rounded-md bg-indigo-50 border border-indigo-200 px-2.5 py-1 text-sm font-medium text-indigo-900"
+                    >
+                      {name}
+                      <button
+                        type="button"
+                        onClick={() => removeMember(name)}
+                        className="text-indigo-400 hover:text-indigo-700 transition leading-none"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              <input
+                className="w-full text-sm text-slate-900 outline-none placeholder:text-slate-400"
+                placeholder={teamMembers.length === 0 ? "Type a name and press Enter…" : "Add another member…"}
+                value={memberInput}
+                onChange={(e) => setMemberInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") { e.preventDefault(); addMember(); }
+                  if (e.key === "Backspace" && memberInput === "") setTeamMembers((prev) => prev.slice(0, -1));
+                }}
+              />
+            </div>
           )}
         </div>
 
         <label className="mt-5 block">
           <span className="mb-2 block text-sm font-semibold text-slate-700">
-            Abstract
+            Description
           </span>
           <textarea
-            className={`${inputClass} min-h-36 resize-y`}
+            className={`${inputClass} min-h-24 resize-y`}
             name="description"
             placeholder="Write the project abstract"
             required
@@ -150,7 +189,7 @@ export default function SubmitProject() {
         <div className="mt-6 grid gap-5 md:grid-cols-2">
           <label className="block">
             <span className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
-              <Image size={16} />
+              <ImageIcon size={16} />
               Cover picture
             </span>
             <input
@@ -165,7 +204,7 @@ export default function SubmitProject() {
           <label className="block">
             <span className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
               <FileText size={16} />
-              Paper or document
+              PDF
             </span>
             <input
               accept=".pdf,.doc,.docx"
@@ -206,7 +245,7 @@ export default function SubmitProject() {
 
           <label className="block">
             <span className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
-              <Image size={16} />
+              <ImageIcon size={16} />
               Project images
             </span>
             <input

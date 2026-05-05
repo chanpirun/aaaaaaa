@@ -21,7 +21,7 @@ function Dashboard() {
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-700">
           Dashboard
         </p>
-        <h1 className="mt-2 text-3xl font-bold text-slate-950">Dashboard</h1>
+        <h1 className="mt-2 text-3xl font-bold text-slate-950">Overview</h1>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -58,7 +58,7 @@ export default function AssistantPage() {
     useState<AssistantSidebarItemId>("dashboard");
 
   return (
-    <div className="flex h-[calc(100dvh-5rem)] min-h-0 overflow-hidden">
+    <div className="flex h-full min-h-0 overflow-hidden">
       <AssistantSidebar activeItem={activeItem} onItemSelect={setActiveItem} />
 
       <main className="flex-1 overflow-auto bg-linear-to-br from-[#f8f7ff] via-[#f1efff] to-[#e9ecff] p-8">

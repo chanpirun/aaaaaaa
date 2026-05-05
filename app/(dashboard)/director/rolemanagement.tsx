@@ -80,10 +80,10 @@ export default function RoleManagement() {
     <section className="mx-auto max-w-5xl">
       <div className="mb-6">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-700">
-          Role Management
+          User Role & Status
         </p>
         <h1 className="mt-2 text-3xl font-bold text-slate-950">
-          USer Roles & Permissions
+          Role Management
         </h1>
       </div>
 

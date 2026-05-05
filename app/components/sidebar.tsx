@@ -13,8 +13,8 @@ import {
 
 const navItems = [
   {
-    id: "dashboard",
-    label: "Dashboard",
+    id: "overview",
+    label: "Overview",
     href: "/member",
     icon: LayoutDashboard,
   },
@@ -25,7 +25,7 @@ const navItems = [
     icon: FolderPlus,
   },
   {
-    id: "allproject",
+    id: "repository",
     label: "Repository",
     href: "/member/allproject",
     icon: Folders,
@@ -61,7 +61,7 @@ export default function Sidebar({ activeItem, onItemSelect }: SidebarProps) {
       >
         {!collapsed && (
           <p className="text-xs font-semibold tracking-[0.18em] uppercase text-slate-400 select-none">
-            Member
+            Dashboard
           </p>
         )}
         <button
