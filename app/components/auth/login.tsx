@@ -1,21 +1,54 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function Login() {
+  const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login attempt:", { email, password, rememberMe });
+
+    try {
+      const res = await fetch("http://127.0.0.1:8000/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message || "Login failed");
+        return;
+      }
+
+      // ✅ Save user to localStorage
+      localStorage.setItem("user", JSON.stringify(data));
+
+      // ✅ Redirect to dashboard
+      router.push("/dashboard");
+
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("Server error. Please try again.");
+    }
   };
 
   return (
     <div className="space-y-6">
       <form onSubmit={handleLogin} className="space-y-4">
+
         {/* Email */}
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -57,6 +90,7 @@ export default function Login() {
             />
             <span className="text-sm text-slate-600">Remember me</span>
           </label>
+
           <Link
             href="#"
             className="text-sm text-indigo-600 hover:text-indigo-700 font-medium transition"
@@ -72,6 +106,7 @@ export default function Login() {
         >
           Sign In
         </button>
+
       </form>
 
       {/* Divider */}
@@ -81,15 +116,6 @@ export default function Login() {
         <div className="flex-1 h-px bg-slate-200" />
       </div>
 
-      {/* Social login
-      <div className="space-y-3">
-        <button className="w-full py-3 rounded-xl border-2 border-slate-300 font-medium text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-2 text-sm">
-          <span>🔵</span> Google
-        </button>
-        <button className="w-full py-3 rounded-xl border-2 border-slate-300 font-medium text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-2 text-sm">
-          <span>🐙</span> GitHub
-        </button>
-      </div> */}
     </div>
   );
 }

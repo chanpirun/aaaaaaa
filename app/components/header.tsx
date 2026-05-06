@@ -11,7 +11,7 @@ export default function Header() {
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
 
   return (
-    <header className="sticky top-0 z-50 w-full transition-all duration-300">
+    <header suppressHydrationWarning className="sticky top-0 z-50 w-full transition-all duration-300">
       <div className="w-full bg-white/90 backdrop-blur-md border-b border-gray-200 shadow-sm">
         <div className="flex flex-col gap-2 px-4 py-2.5 md:flex-row md:items-center md:justify-between md:px-6">
           <div className="flex items-center justify-between gap-2">
@@ -35,7 +35,7 @@ export default function Header() {
               </div>
             </div>
 
-            <button
+            <button 
               type="button"
               className="inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white p-2 text-gray-700 shadow-sm transition hover:bg-gray-50 md:hidden"
               aria-expanded={menuOpen ? "true" : "false"}
