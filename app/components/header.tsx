@@ -8,7 +8,6 @@ import Auth from "./auth/auth";
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
-  const [authMode, setAuthMode] = useState<"login" | "register">("login");
 
   return (
     <header suppressHydrationWarning className="sticky top-0 z-50 w-full transition-all duration-300">
@@ -65,19 +64,10 @@ export default function Header() {
           <div className="hidden items-center gap-3 md:flex">
             <button 
               onClick={() => {
-                setAuthMode("login");
                 setShowAuth(true);
               }}
               className="px-4 py-2 text-sm rounded-lg border border-gray-300 hover:bg-gray-100 transition">
               Login
-            </button>
-            <button 
-              onClick={() => {
-                setAuthMode("register");
-                setShowAuth(true);
-              }}
-              className="px-4 py-2 text-sm rounded-lg bg-black text-white hover:bg-gray-800 transition">
-              Get Started
             </button>
           </div>
         </div>
@@ -111,21 +101,11 @@ export default function Header() {
            <div className="flex flex-col gap-2 border-t border-gray-200 px-4 pt-4 pb-4">
              <button 
                onClick={() => {
-                 setAuthMode("login");
                  setShowAuth(true);
                  setMenuOpen(false);
                }}
-               className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
+               className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 hover:bg-gray-100 transition">
                Login
-             </button>
-             <button 
-               onClick={() => {
-                 setAuthMode("register");
-                 setShowAuth(true);
-                 setMenuOpen(false);
-               }}
-               className="w-full rounded-lg bg-black px-4 py-2 text-sm text-white hover:bg-gray-800 transition">
-               Sign Up
              </button>
            </div>
          </div>

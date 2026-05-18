@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   FolderPlus,
   Folders,
   PanelLeft,
   PanelRight,
+  LogOut,
 } from "lucide-react";
 
 const navItems = [
@@ -42,6 +43,14 @@ type SidebarProps = {
 export default function Sidebar({ activeItem, onItemSelect }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("auth");
+    sessionStorage.removeItem("auth");
+    router.push("/");
+  };
 
   return (
     <aside
@@ -60,8 +69,8 @@ export default function Sidebar({ activeItem, onItemSelect }: SidebarProps) {
         `}
       >
         {!collapsed && (
-          <p className="text-xs font-semibold tracking-[0.18em] uppercase text-slate-400 select-none">
-            Dashboard
+          <p className="text-xs font-semibold tracking-[0.22em] uppercase text-slate-500 select-none">
+            Member
           </p>
         )}
         <button
@@ -118,24 +127,34 @@ export default function Sidebar({ activeItem, onItemSelect }: SidebarProps) {
         })}
       </nav>
 
-      {/* Profile */}
-      <div className="mt-auto px-2 py-3 border-t border-border">
+      <div className="mt-auto px-2 py-3 border-t border-slate-200">
         <div
-          className={`flex items-center bg-muted ${
+          className={`flex items-center rounded-md bg-slate-100 ${
             collapsed ? "justify-center px-0 py-2" : "gap-3 px-2 py-2"
           }`}
-          title={collapsed ? "John Doe" : undefined}
+          title={collapsed ? "Member" : undefined}
         >
-          <div className="w-7 h-7 shrink-0 bg-black text-white  flex items-center justify-center text-[10px] font-black">
-            MR
+          <div className="w-7 h-7 shrink-0 rounded-sm bg-indigo-900 text-white flex items-center justify-center text-[10px] font-black">
+            MB
           </div>
           {!collapsed && (
             <div className="min-w-0">
-              <p className="text-xs font-semibold truncate">Mario Mario</p>
-              <p className="text-[10px] text-muted-foreground truncate">Member</p>
+              <p className="text-xs font-semibold truncate text-slate-900">Member</p>
+              <p className="text-[10px] text-slate-500 truncate">member</p>
             </div>
           )}
         </div>
+
+        <button
+          type="button"
+          onClick={handleLogout}
+          className={`mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-red-700 ${
+            collapsed ? "px-2" : ""
+          }`}
+        >
+          <LogOut size={16} />
+          {!collapsed && <span>Log Out</span>}
+        </button>
       </div>
     </aside>
   );

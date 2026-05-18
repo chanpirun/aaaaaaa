@@ -8,11 +8,11 @@ import ProjectList from "@/components/project-list";
 
 type Filter = "all" | ProjectVisibility;
 
-const publicCount = projects.filter((p) => p.visibility === "public").length;
-const privateCount = projects.filter((p) => p.visibility === "private").length;
-
 export default function AllProject() {
   const [filter, setFilter] = useState<Filter>("all");
+
+  const publicCount = projects.filter((p) => p.visibility === "public").length;
+  const privateCount = projects.filter((p) => p.visibility === "private").length;
 
   const filtered =
     filter === "all" ? projects : projects.filter((p) => p.visibility === filter);

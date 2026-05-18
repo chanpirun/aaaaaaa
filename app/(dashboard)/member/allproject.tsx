@@ -1,18 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronDown, FolderOpen } from "lucide-react";
-import { projects } from "@/data/projects";
-import type { ProjectVisibility } from "@/data/projects";
+import type { Project, ProjectVisibility } from "@/data/projects";
 import ProjectList from "@/components/project-list";
+import { fetchProjectsFromApi, getAuthToken } from "@/lib/submissions";
 
 type Filter = "all" | ProjectVisibility;
 
-const publicCount = projects.filter((p) => p.visibility === "public").length;
-const privateCount = projects.filter((p) => p.visibility === "private").length;
-
 export default function AllProject() {
+  const [projects, setProjects] = useState<Project[]>([]);
   const [filter, setFilter] = useState<Filter>("public");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function load() {
+      const token = getAuthToken();
+      if (!token) {
+        setError("Please sign in to view repository data.");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const rows = await fetchProjectsFromApi(token);
+        setProjects(rows);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load repository data.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    load();
+  }, []);
+
+  const publicCount = projects.filter((p) => p.visibility === "public").length;
+  const privateCount = projects.filter((p) => p.visibility === "private").length;
 
   const filtered =
     filter === "all" ? projects : projects.filter((p) => p.visibility === filter);
@@ -45,6 +70,15 @@ export default function AllProject() {
           />
         </div>
       </div>
+
+      {loading && (
+        <p className="mb-4 text-sm text-slate-500">Loading repository...</p>
+      )}
+      {error && (
+        <p className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          {error}
+        </p>
+      )}
 
       {filtered.length === 0 ? (
         <div className="rounded-lg border border-slate-200 bg-white p-10 text-center shadow-sm">

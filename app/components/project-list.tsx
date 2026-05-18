@@ -4,6 +4,10 @@ import type { Project } from "@/data/projects";
 
 export type { Project };
 
+function shouldBypassImageOptimization(src: string): boolean {
+  return src.startsWith("http://127.0.0.1") || src.startsWith("http://localhost");
+}
+
 const tagColors = [
   "bg-indigo-50 text-indigo-700 border border-indigo-100",
   "bg-violet-50 text-violet-700 border border-violet-100",
@@ -43,7 +47,10 @@ export default function ProjectList({
               placeholder={searchPlaceholder}
               type="text"
             />
-            <button className="rounded-xl bg-indigo-900 px-5 py-2 text-sm font-medium text-white transition hover:scale-105">
+            <button
+              suppressHydrationWarning
+              className="rounded-xl bg-indigo-900 px-5 py-2 text-sm font-medium text-white transition hover:scale-105"
+            >
               Search
             </button>
           </div>
@@ -92,6 +99,7 @@ function ProjectCard({
             fill
             sizes="(min-width: 768px) 320px, 100vw"
             src={project.coverImage}
+            unoptimized={shouldBypassImageOptimization(project.coverImage)}
           />
           {showVisibility && (
             <span
@@ -143,7 +151,10 @@ function ProjectCard({
           </div>
 
           <div className="mt-8">
-            <button className="group/link inline-flex items-center gap-3 font-medium text-indigo-700">
+            <button
+              suppressHydrationWarning
+              className="group/link inline-flex items-center gap-3 font-medium text-indigo-700"
+            >
               {actionLabel}
               <span className="transition group-hover/link:translate-x-2">
                 -&gt;

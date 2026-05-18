@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   CheckCircle2,
   Database,
@@ -12,11 +12,12 @@ import {
   X,
   XCircle,
 } from "lucide-react";
+import { type Project, type ProjectStatus } from "@/data/projects";
 import {
-  projects as initialProjects,
-  type Project,
-  type ProjectStatus,
-} from "@/data/projects";
+  fetchProjectsFromApi,
+  getAuthToken,
+  mapSubmissionToProject,
+} from "@/lib/submissions";
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -226,9 +227,33 @@ function ReviewModal({ project, onClose, onUpdate }: ModalProps) {
 type FilterTab = "all" | ProjectStatus;
 
 export default function Submissions() {
-  const [list, setList] = useState<Project[]>(initialProjects);
+  const [list, setList] = useState<Project[]>([]);
   const [filter, setFilter] = useState<FilterTab>("all");
   const [selected, setSelected] = useState<Project | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function load() {
+      const token = getAuthToken();
+      if (!token) {
+        setError("Please sign in to view submissions.");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const rows = await fetchProjectsFromApi(token);
+        setList(rows);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load submissions.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    load();
+  }, []);
 
   const counts = {
     all: list.length,
@@ -240,10 +265,33 @@ export default function Submissions() {
   const filtered =
     filter === "all" ? list : list.filter((p) => p.status === filter);
 
-  function handleUpdate(id: string, status: ProjectStatus, comment: string) {
+  async function handleUpdate(id: string, status: ProjectStatus, comment: string) {
+    const token = getAuthToken();
+    if (!token) {
+      setError("Please sign in again to update submissions.");
+      return;
+    }
+
+    const response = await fetch(`/api/submissions/${id}/review`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        status,
+        review_comment: comment,
+      }),
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      setError(payload?.message ?? "Failed to update submission.");
+      return;
+    }
+
     setList((prev) =>
       prev.map((p) =>
-        p.id === id ? { ...p, status, reviewComment: comment } : p,
+        p.id === id ? mapSubmissionToProject(payload.data) : p,
       ),
     );
   }
@@ -263,6 +311,8 @@ export default function Submissions() {
         </p>
         <h1 className="mt-2 text-3xl font-bold text-slate-950">Submissions</h1>
       </div>
+      {loading && <p className="mb-4 text-sm text-slate-500">Loading submissions...</p>}
+      {error && <p className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
       {/* Filter tabs */}
       <div className="mb-4 flex gap-1 rounded-xl bg-white border border-slate-200 p-1 w-fit shadow-sm">

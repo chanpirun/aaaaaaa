@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   CheckCircle2,
   Clock,
@@ -15,12 +15,12 @@ import {
   X,
   XCircle,
 } from "lucide-react";
+import { type Project, type ProjectStatus, type ProjectVisibility } from "@/data/projects";
 import {
-  projects as initialProjects,
-  type Project,
-  type ProjectStatus,
-  type ProjectVisibility,
-} from "@/data/projects";
+  fetchProjectsFromApi,
+  getAuthToken,
+  mapSubmissionToProject,
+} from "@/lib/submissions";
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -268,9 +268,33 @@ const tabs: { key: FilterTab; label: string }[] = [
 ];
 
 export default function DirectorSubmissions() {
-  const [list, setList] = useState<Project[]>(initialProjects);
+  const [list, setList] = useState<Project[]>([]);
   const [filter, setFilter] = useState<FilterTab>("all");
   const [selected, setSelected] = useState<Project | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function load() {
+      const token = getAuthToken();
+      if (!token) {
+        setError("Please sign in to view submissions.");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const rows = await fetchProjectsFromApi(token);
+        setList(rows);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load submissions.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    load();
+  }, []);
 
   const counts: Record<FilterTab, number> = {
     all: list.length,
@@ -288,9 +312,31 @@ export default function DirectorSubmissions() {
         ? list.filter((p) => p.visibility === filter)
         : list.filter((p) => p.status === filter);
 
-  function handleToggleVisibility(id: string, visibility: ProjectVisibility) {
+  async function handleToggleVisibility(id: string, visibility: ProjectVisibility) {
+    const token = getAuthToken();
+    if (!token) {
+      setError("Please sign in again to update submissions.");
+      return;
+    }
+
+    const response = await fetch(`/api/submissions/${id}/visibility`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        visibility,
+      }),
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      setError(payload?.message ?? "Failed to update visibility.");
+      return;
+    }
+
     setList((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, visibility } : p)),
+      prev.map((p) => (p.id === id ? mapSubmissionToProject(payload.data) : p)),
     );
   }
 
@@ -302,6 +348,8 @@ export default function DirectorSubmissions() {
         </p>
         <h1 className="mt-2 text-3xl font-bold text-slate-950">Submissions</h1>
       </div>
+      {loading && <p className="mb-4 text-sm text-slate-500">Loading submissions...</p>}
+      {error && <p className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
       {/* Filter tabs */}
       <div className="mb-4 flex flex-wrap gap-1 rounded-xl bg-white border border-slate-200 p-1 w-fit shadow-sm">

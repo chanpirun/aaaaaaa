@@ -86,7 +86,7 @@ export default function Hero() {
             width={240}
             height={240}
             priority
-            className="relative z-10 animate-float drop-shadow-2xl"
+            className="relative z-10 h-auto w-auto animate-float drop-shadow-2xl"
           />
         </div>
       </div>

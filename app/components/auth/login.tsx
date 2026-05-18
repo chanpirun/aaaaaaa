@@ -4,52 +4,74 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+type LoginResponse = {
+  token: string;
+  user: {
+    id: number;
+    name: string;
+    email: string;
+    role?: string;
+  };
+  message?: string;
+};
+
 export default function Login() {
   const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage("");
+    setIsSubmitting(true);
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/login", {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email,
+          email: email.trim(),
           password,
         }),
       });
 
-      const data = await res.json();
+      const data: LoginResponse = await res.json();
 
       if (!res.ok) {
-        alert(data.message || "Login failed");
+        setErrorMessage(data.message || "Login failed");
         return;
       }
 
-      // ✅ Save user to localStorage
-      localStorage.setItem("user", JSON.stringify(data));
+      const authPayload = {
+        token: data.token,
+        user: data.user,
+      };
 
-      // ✅ Redirect to dashboard
-      router.push("/dashboard");
+      if (rememberMe) {
+        localStorage.setItem("auth", JSON.stringify(authPayload));
+      } else {
+        sessionStorage.setItem("auth", JSON.stringify(authPayload));
+      }
 
+      localStorage.setItem("user", JSON.stringify(data.user));
+      router.push("/member");
     } catch (error) {
       console.error("Login error:", error);
-      alert("Server error. Please try again.");
+      setErrorMessage("Server error. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <div className="space-y-6">
       <form onSubmit={handleLogin} className="space-y-4">
-
-        {/* Email */}
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-2">
             Email Address
@@ -64,7 +86,6 @@ export default function Login() {
           />
         </div>
 
-        {/* Password */}
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-2">
             Password
@@ -79,7 +100,12 @@ export default function Login() {
           />
         </div>
 
-        {/* Remember me & Forgot password */}
+        {errorMessage && (
+          <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+            {errorMessage}
+          </p>
+        )}
+
         <div className="flex items-center justify-between">
           <label className="flex items-center gap-2 cursor-pointer">
             <input
@@ -99,23 +125,20 @@ export default function Login() {
           </Link>
         </div>
 
-        {/* Login button */}
         <button
           type="submit"
-          className="w-full py-3 rounded-xl bg-indigo-900 text-white font-semibold text-lg shadow-lg hover:bg-indigo-800 transition active:scale-95"
+          disabled={isSubmitting}
+          className="w-full py-3 rounded-xl bg-indigo-900 text-white font-semibold text-lg shadow-lg hover:bg-indigo-800 transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
         >
-          Sign In
+          {isSubmitting ? "Signing In..." : "Sign In"}
         </button>
-
       </form>
 
-      {/* Divider */}
       <div className="flex items-center gap-4">
         <div className="flex-1 h-px bg-slate-200" />
         <span className="text-xs text-slate-500">OR</span>
         <div className="flex-1 h-px bg-slate-200" />
       </div>
-
     </div>
   );
 }
