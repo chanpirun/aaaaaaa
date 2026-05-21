@@ -17,6 +17,8 @@ export type Project = {
   projectImages?: string[];
   status: ProjectStatus;
   reviewComment?: string;
+  reviewedByRole?: "assistant" | "director";
+  reviewedAt?: string;
   visibility: ProjectVisibility;
 };
 

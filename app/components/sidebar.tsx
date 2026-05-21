@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   FolderPlus,
   Folders,
+  ClipboardList,
   PanelLeft,
   PanelRight,
   LogOut,
@@ -30,6 +31,12 @@ const navItems = [
     label: "Repository",
     href: "/member/allproject",
     icon: Folders,
+  },
+  {
+    id: "projectstatus",
+    label: "Project Status",
+    href: "/member/projectstatus",
+    icon: ClipboardList,
   },
 ] as const;
 

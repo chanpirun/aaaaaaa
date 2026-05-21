@@ -1,10 +1,10 @@
 "use client";
 
-import { BarChart3, FileCheck2, Globe, Lock } from "lucide-react";
 import { useState } from "react";
 import Sidebar, { type SidebarItemId } from "@/components/sidebar";
 import MemberDashboard from "./member-dashboard";
 import AllProject from "./allproject";
+import ProjectStatus from "./project-status";
 import SubmitProject from "./submitproject";
 
 export default function MemberPage() {
@@ -18,6 +18,7 @@ export default function MemberPage() {
         {activeItem === "overview" && <MemberDashboard />}
         {activeItem === "submitproject" && <SubmitProject />}
         {activeItem === "repository" && <AllProject />}
+        {activeItem === "projectstatus" && <ProjectStatus />}
       </main>
     </div>
   );

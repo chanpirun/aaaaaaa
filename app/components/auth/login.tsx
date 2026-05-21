@@ -71,9 +71,9 @@ export default function Login() {
 
   return (
     <div className="space-y-6">
-      <form onSubmit={handleLogin} className="space-y-4">
+      <form onSubmit={handleLogin} className="space-y-5">
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">
+          <label className="mb-2 block text-sm font-medium text-slate-700">
             Email Address
           </label>
           <input
@@ -81,13 +81,13 @@ export default function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
-            className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm placeholder:text-slate-400 transition focus:border-slate-400 focus:outline-none focus:ring-4 focus:ring-slate-200"
             required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">
+          <label className="mb-2 block text-sm font-medium text-slate-700">
             Password
           </label>
           <input
@@ -95,7 +95,7 @@ export default function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter your password"
-            className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm placeholder:text-slate-400 transition focus:border-slate-400 focus:outline-none focus:ring-4 focus:ring-slate-200"
             required
           />
         </div>
@@ -106,20 +106,20 @@ export default function Login() {
           </p>
         )}
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
               checked={rememberMe}
               onChange={(e) => setRememberMe(e.target.checked)}
-              className="w-4 h-4 rounded border-slate-300 cursor-pointer"
+              className="h-4 w-4 cursor-pointer rounded border-slate-300 text-slate-900 focus:ring-slate-400"
             />
             <span className="text-sm text-slate-600">Remember me</span>
           </label>
 
           <Link
             href="#"
-            className="text-sm text-indigo-600 hover:text-indigo-700 font-medium transition"
+            className="text-sm font-medium text-slate-700 underline-offset-4 transition hover:text-slate-900 hover:underline"
           >
             Forgot password?
           </Link>
@@ -128,16 +128,16 @@ export default function Login() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full py-3 rounded-xl bg-indigo-900 text-white font-semibold text-lg shadow-lg hover:bg-indigo-800 transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
+          className="w-full rounded-xl bg-slate-900 py-3.5 text-lg font-semibold text-white shadow-[0_10px_22px_rgba(15,23,42,0.24)] transition hover:bg-slate-800 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
         >
           {isSubmitting ? "Signing In..." : "Sign In"}
         </button>
       </form>
 
-      <div className="flex items-center gap-4">
-        <div className="flex-1 h-px bg-slate-200" />
-        <span className="text-xs text-slate-500">OR</span>
-        <div className="flex-1 h-px bg-slate-200" />
+      <div className="flex items-center gap-4 pt-1">
+        <div className="h-px flex-1 bg-slate-200" />
+        <span className="text-xs font-medium tracking-[0.16em] text-slate-400">OR</span>
+        <div className="h-px flex-1 bg-slate-200" />
       </div>
     </div>
   );

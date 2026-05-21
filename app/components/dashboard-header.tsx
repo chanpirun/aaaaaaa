@@ -27,9 +27,7 @@ export default function DashboardHeader() {
             </div>
           </Link>
 
-          <Link href="/" className="px-4 py-2 text-sm rounded-lg bg-black text-white hover:bg-gray-800 transition">
-            Log Out
-          </Link>
+          
         </div>
       </div>
     </header>

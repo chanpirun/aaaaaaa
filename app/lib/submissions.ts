@@ -15,6 +15,8 @@ type SubmissionApiRecord = {
   demo_link: string | null;
   status: "pending" | "approved" | "rejected";
   review_comment: string | null;
+  reviewed_by_role: "assistant" | "director" | null;
+  reviewed_at: string | null;
   visibility: "public" | "private";
   created_at: string;
 };
@@ -65,6 +67,14 @@ export function mapSubmissionToProject(item: SubmissionApiRecord): Project {
       .filter((p): p is string => Boolean(p)),
     status: item.status,
     reviewComment: item.review_comment ?? undefined,
+    reviewedByRole: item.reviewed_by_role ?? undefined,
+    reviewedAt: item.reviewed_at
+      ? new Date(item.reviewed_at).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        })
+      : undefined,
     visibility: item.visibility,
   };
 }
