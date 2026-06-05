@@ -8,7 +8,6 @@ import {
   ExternalLink,
   FileArchive,
   FileText,
-  ImageIcon,
   X,
   XCircle,
 } from "lucide-react";
@@ -52,6 +51,11 @@ type ModalProps = {
 function ReviewModal({ project, onClose, onUpdate }: ModalProps) {
   const [comment, setComment] = useState(project.reviewComment ?? "");
   const [saving, setSaving] = useState(false);
+  const getPreviewUrl = (field: string | string[] | undefined): string | null => {
+    if (!field) return null;
+    if (Array.isArray(field)) return field[0] ?? null;
+    return field;
+  };
 
   function handleAction(status: ProjectStatus) {
     setSaving(true);
@@ -165,21 +169,31 @@ function ReviewModal({ project, onClose, onUpdate }: ModalProps) {
                 [
                   { icon: FileText, label: "Paper", field: project.pdf },
                   { icon: FileArchive, label: "Source Code", field: project.sourceZip },
-                  { icon: Database, label: "Dataset", field: project.dataset },
-                  { icon: ImageIcon, label: "Images", field: project.projectImages },
+                  { icon: Database, label: "Database", field: project.dataset },
+                  {
+                    icon: FileText,
+                    label: "Finalized Documentation",
+                    field: project.projectImages,
+                  },
                 ] as const
-              ).map(({ icon: Icon, label, field }) => (
+              ).map(({ icon: Icon, label, field }) => {
+                const previewUrl = getPreviewUrl(field);
+                return (
                 <button
                   key={label}
                   type="button"
-                  disabled={!field}
+                  disabled={!previewUrl}
+                  onClick={() => {
+                    if (!previewUrl) return;
+                    window.open(previewUrl, "_blank", "noopener,noreferrer");
+                  }}
                   className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-600 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 transition disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <Icon size={14} />
                   {label}
                   <Download size={12} className="ml-auto opacity-60" />
                 </button>
-              ))}
+              )})}
             </div>
           </div>
 
@@ -304,7 +318,7 @@ export default function Submissions() {
   ];
 
   return (
-    <section className="mx-auto max-w-5xl">
+    <section className="w-full">
       <div className="mb-6">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-700">
           Submission Review

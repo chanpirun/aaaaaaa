@@ -20,7 +20,8 @@ export default function Footer() {
               <Image
                 src="/RadiceLogoNoText_light.svg"
                 alt="RaDiCe Logo"
-                fill
+                  fill
+                  loading="eager"
                 sizes="56"
                 className="cover"
               />
@@ -84,6 +85,7 @@ export default function Footer() {
               width="100%"
               height="100%"
               style={{ border: 0 }}
+              title="RaDiCe location map"
               allowFullScreen
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"

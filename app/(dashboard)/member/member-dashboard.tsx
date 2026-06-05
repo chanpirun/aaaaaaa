@@ -76,7 +76,7 @@ export default function MemberDashboard() {
 
   if (loading) {
     return (
-      <section className="mx-auto w-full max-w-6xl rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+      <section className="w-full rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
         <div className="text-center py-12">
           <p className="text-slate-500">Loading dashboard...</p>
         </div>
@@ -85,7 +85,7 @@ export default function MemberDashboard() {
   }
 
   return (
-    <section className="mx-auto w-full max-w-6xl rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+    <section className="w-full rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
       <div className="mb-8">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-700">
           Dashboard

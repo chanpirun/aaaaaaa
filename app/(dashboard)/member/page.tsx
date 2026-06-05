@@ -14,11 +14,13 @@ export default function MemberPage() {
     <div className="flex h-full min-h-0 overflow-hidden">
       <Sidebar activeItem={activeItem} onItemSelect={setActiveItem} />
 
-      <main className="flex-1 overflow-auto bg-slate-100 p-8">
-        {activeItem === "overview" && <MemberDashboard />}
-        {activeItem === "submitproject" && <SubmitProject />}
-        {activeItem === "repository" && <AllProject />}
-        {activeItem === "projectstatus" && <ProjectStatus />}
+      <main className="flex-1 overflow-auto bg-slate-100 p-6 md:p-8">
+        <div className="w-full">
+          {activeItem === "overview" && <MemberDashboard />}
+          {activeItem === "submitproject" && <SubmitProject />}
+          {activeItem === "repository" && <AllProject />}
+          {activeItem === "projectstatus" && <ProjectStatus />}
+        </div>
       </main>
     </div>
   );

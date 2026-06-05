@@ -21,7 +21,8 @@ export default function RootLayout({
                 var attrs = [
                   "fdprocessedid",
                   "data-new-gr-c-s-check-loaded",
-                  "data-gr-ext-installed"
+                  "data-gr-ext-installed",
+                  "cz-shortcut-listen"
                 ];
                 var selector = attrs.map(function (attr) {
                   return "[" + attr + "]";
@@ -43,6 +44,34 @@ export default function RootLayout({
                 }
 
                 stripAttrs(document.documentElement);
+
+                var observer = new MutationObserver(function (mutations) {
+                  for (var m = 0; m < mutations.length; m += 1) {
+                    var mutation = mutations[m];
+                    if (mutation.type === "attributes" && mutation.target) {
+                      for (var i = 0; i < attrs.length; i += 1) {
+                        if (mutation.attributeName === attrs[i]) {
+                          mutation.target.removeAttribute(attrs[i]);
+                        }
+                      }
+                    }
+                    if (mutation.type === "childList") {
+                      for (var c = 0; c < mutation.addedNodes.length; c += 1) {
+                        var node = mutation.addedNodes[c];
+                        if (node && node.nodeType === 1) {
+                          stripAttrs(node);
+                        }
+                      }
+                    }
+                  }
+                });
+
+                observer.observe(document.documentElement, {
+                  subtree: true,
+                  childList: true,
+                  attributes: true,
+                  attributeFilter: attrs
+                });
               })();
             `,
           }}

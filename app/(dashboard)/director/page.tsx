@@ -20,7 +20,7 @@ function Dashboard() {
   const totalUsers = users.length;
 
   return (
-    <section className="mx-auto max-w-5xl">
+    <section className="w-full">
       <div className="mb-6">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-700">
           Dashboard
@@ -69,11 +69,13 @@ export default function DirectorPage() {
     <div className="flex h-full min-h-0 overflow-hidden">
       <DirectorSidebar activeItem={activeItem} onItemSelect={setActiveItem} />
 
-      <main className="flex-1 overflow-auto bg-linear-to-br from-[#f8f7ff] via-[#f1efff] to-[#e9ecff] p-8">
-        {activeItem === "dashboard" && <Dashboard />}
-        {activeItem === "submissions" && <DirectorSubmissions />}
-        {activeItem === "repository" && <AllProject />}
-        {activeItem === "roles" && <RoleManagement />}
+      <main className="flex-1 overflow-auto bg-linear-to-br from-[#f8f7ff] via-[#f1efff] to-[#e9ecff] p-6 md:p-8">
+        <div className="w-full">
+          {activeItem === "dashboard" && <Dashboard />}
+          {activeItem === "submissions" && <DirectorSubmissions />}
+          {activeItem === "repository" && <AllProject />}
+          {activeItem === "roles" && <RoleManagement />}
+        </div>
       </main>
     </div>
   );

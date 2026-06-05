@@ -10,7 +10,6 @@ import {
   FileArchive,
   FileText,
   Globe,
-  ImageIcon,
   Lock,
   X,
   XCircle,
@@ -197,7 +196,11 @@ function DetailModal({ project, onClose, onToggleVisibility }: ModalProps) {
                   { icon: FileText, label: "Paper", field: project.pdf },
                   { icon: FileArchive, label: "Source Code", field: project.sourceZip },
                   { icon: Database, label: "Dataset", field: project.dataset },
-                  { icon: ImageIcon, label: "Images", field: project.projectImages },
+                  {
+                    icon: FileText,
+                    label: "Finalized Documentation",
+                    field: project.projectImages,
+                  },
                 ] as const
               ).map(({ icon: Icon, label, field }) => (
                 <button
@@ -341,7 +344,7 @@ export default function DirectorSubmissions() {
   }
 
   return (
-    <section className="mx-auto max-w-5xl">
+    <section className="w-full">
       <div className="mb-6">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-700">
           Project Management

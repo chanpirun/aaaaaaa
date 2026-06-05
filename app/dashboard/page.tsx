@@ -21,25 +21,29 @@ export default function Dashboard() {
   if (!user) return <p className="p-10">Loading...</p>;
     
   return (
-    <div className="p-10">
-      <h1 className="text-3xl font-bold">
-        Welcome {user.name} 👋
-      </h1>
+    <div className="w-full h-screen flex flex-col">
+      <div className="flex-1 overflow-auto p-8 md:p-12">
+        <div className="w-full rounded-2xl border border-gray-200 bg-white shadow-sm p-8">
+          <h1 className="text-3xl font-bold">
+            Welcome {user.name} 👋
+          </h1>
 
-      <p className="mt-4 text-gray-600">
-        Email: {user.email}
-      </p>
+          <p className="mt-4 text-gray-600">
+            Email: {user.email}
+          </p>
 
-      {/* Logout button */}
-      <button
-        onClick={() => {
-          localStorage.removeItem("user");
-          router.push("/");
-        }}
-        className="mt-6 px-5 py-2 bg-red-500 text-white rounded-lg"
-      >
-        Logout
-      </button>
+          {/* Logout button */}
+          <button
+            onClick={() => {
+              localStorage.removeItem("user");
+              router.push("/");
+            }}
+            className="mt-6 px-5 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

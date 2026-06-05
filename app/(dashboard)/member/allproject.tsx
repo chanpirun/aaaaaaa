@@ -43,7 +43,7 @@ export default function AllProject() {
     filter === "all" ? projects : projects.filter((p) => p.visibility === filter);
 
   return (
-    <section className="mx-auto max-w-5xl">
+    <section className="w-full">
       <div className="mb-6 flex items-end justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-700">

@@ -16,7 +16,7 @@ function Dashboard() {
   const rejected = projects.filter((p) => p.status === "rejected").length;
 
   return (
-    <section className="mx-auto max-w-5xl">
+    <section className="w-full">
       <div className="mb-6">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-700">
           Dashboard
@@ -61,10 +61,12 @@ export default function AssistantPage() {
     <div className="flex h-full min-h-0 overflow-hidden">
       <AssistantSidebar activeItem={activeItem} onItemSelect={setActiveItem} />
 
-      <main className="flex-1 overflow-auto bg-linear-to-br from-[#f8f7ff] via-[#f1efff] to-[#e9ecff] p-8">
-        {activeItem === "dashboard" && <Dashboard />}
-        {activeItem === "submissions" && <Submissions />}
-        {activeItem === "repository" && <AllProject />}
+      <main className="flex-1 overflow-auto bg-linear-to-br from-[#f8f7ff] via-[#f1efff] to-[#e9ecff] p-6 md:p-8">
+        <div className="w-full">
+          {activeItem === "dashboard" && <Dashboard />}
+          {activeItem === "submissions" && <Submissions />}
+          {activeItem === "repository" && <AllProject />}
+        </div>
       </main>
     </div>
   );

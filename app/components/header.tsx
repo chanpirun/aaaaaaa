@@ -10,7 +10,7 @@ export default function Header() {
   const [showAuth, setShowAuth] = useState(false);
 
   return (
-    <header suppressHydrationWarning className="sticky top-0 z-50 w-full transition-all duration-300">
+    <header className="sticky top-0 z-50 w-full transition-all duration-300">
       <div className="w-full border-b border-gray-200 bg-white/90 shadow-sm backdrop-blur-md">
         <div className="flex flex-col gap-2 px-4 py-2.5 md:flex-row md:items-center md:justify-between md:px-6">
           <div className="flex items-center justify-between gap-2">
@@ -20,6 +20,7 @@ export default function Header() {
                   src="/RadiceLogoNoText_light.svg"
                   alt="RaDiCe Logo"
                   fill
+                  loading="eager"
                   sizes="56"
                   className="cover"
                 />
@@ -37,7 +38,6 @@ export default function Header() {
             <button
               type="button"
               className="inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white p-2 text-gray-700 shadow-sm transition hover:bg-gray-50 md:hidden"
-              aria-expanded={menuOpen ? "true" : "false"}
               aria-label={menuOpen ? "Close menu" : "Open menu"}
               onClick={() => setMenuOpen((state) => !state)}
             >

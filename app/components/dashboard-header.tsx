@@ -12,7 +12,8 @@ export default function DashboardHeader() {
               <Image
                 src="/RadiceLogoNoText_light.svg"
                 alt="RaDiCe Logo"
-                fill
+                  fill
+                  loading="eager"
                 sizes="56"
                 className="cover"
               />
