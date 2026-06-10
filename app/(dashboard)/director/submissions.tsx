@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react";
 import {
-  CheckCircle2,
-  Clock,
   Database,
   Download,
   ExternalLink,
@@ -13,7 +11,6 @@ import {
   ImageIcon,
   Lock,
   X,
-  XCircle,
 } from "lucide-react";
 import { type Project, type ProjectStatus, type ProjectVisibility } from "@/data/projects";
 import {
@@ -68,6 +65,28 @@ type ModalProps = {
 
 function DetailModal({ project, onClose, onToggleVisibility }: ModalProps) {
   const [busy, setBusy] = useState(false);
+  const fileGroups = [
+    {
+      icon: FileText,
+      label: "Manual Documentation",
+      files: project.pdfs ?? (project.pdf ? [project.pdf] : []),
+    },
+    {
+      icon: FileArchive,
+      label: "Source Code ZIP",
+      files: project.sourceZips ?? (project.sourceZip ? [project.sourceZip] : []),
+    },
+    {
+      icon: Database,
+      label: "Database",
+      files: project.datasets ?? (project.dataset ? [project.dataset] : []),
+    },
+    {
+      icon: ImageIcon,
+      label: "Final Documentation",
+      files: project.finalDocuments ?? project.projectImages ?? [],
+    },
+  ];
 
   function handleToggle() {
     const next: ProjectVisibility =
@@ -191,25 +210,33 @@ function DetailModal({ project, onClose, onToggleVisibility }: ModalProps) {
             <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
               Submitted Files
             </p>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-              {(
-                [
-                  { icon: FileText, label: "Paper", field: project.pdf },
-                  { icon: FileArchive, label: "Source Code", field: project.sourceZip },
-                  { icon: Database, label: "Dataset", field: project.dataset },
-                  { icon: ImageIcon, label: "Images", field: project.projectImages },
-                ] as const
-              ).map(({ icon: Icon, label, field }) => (
-                <button
+            <div className="grid gap-3 sm:grid-cols-2">
+              {fileGroups.map(({ icon: Icon, label, files }) => (
+                <div
                   key={label}
-                  type="button"
-                  disabled={!field}
-                  className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-600 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 transition disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="rounded-lg border border-slate-200 bg-slate-50 p-3"
                 >
-                  <Icon size={14} />
-                  {label}
-                  <Download size={12} className="ml-auto opacity-60" />
-                </button>
+                  <p className="mb-2 flex items-center gap-2 text-xs font-semibold text-slate-600">
+                    <Icon size={14} />
+                    {label}
+                  </p>
+                  {files.length > 0 ? (
+                    <div className="space-y-2">
+                      {files.map((file, index) => (
+                        <a
+                          key={`${label}-${file}`}
+                          href={file}
+                          className="flex items-center gap-2 rounded-md bg-white px-3 py-2 text-xs font-medium text-indigo-700 transition hover:bg-indigo-50"
+                        >
+                          File {index + 1}
+                          <Download size={12} className="ml-auto opacity-60" />
+                        </a>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-400">No file uploaded</p>
+                  )}
+                </div>
               ))}
             </div>
           </div>

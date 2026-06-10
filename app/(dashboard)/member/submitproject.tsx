@@ -1,24 +1,252 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
+  CheckCircle2,
+  Clock3,
   Database,
+  Download,
+  Eye,
   FileArchive,
   FileText,
   Image as ImageIcon,
   Link2,
+  Plus,
   Send,
   Tags,
+  Trash2,
   User,
   Users,
+  X,
 } from "lucide-react";
 import { getAuthToken } from "@/lib/submissions";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100";
 
-const fileClass =
-  "w-full rounded-lg border border-dashed border-slate-300 bg-white px-3 py-3 text-sm text-slate-600 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-900 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:border-indigo-300";
+type FileItem = {
+  id: string;
+  file: File;
+  url: string;
+  uploadedAt: string;
+};
+
+type PreviewFile = {
+  name: string;
+  url: string;
+  type: string;
+};
+
+type FileSectionProps = {
+  title: string;
+  actionLabel: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  files: FileItem[];
+  accept: string;
+  multiple?: boolean;
+  onAdd: (files: FileList | null) => void;
+  onRemove: (id: string) => void;
+  onPreview: (file: PreviewFile) => void;
+};
+
+const actionButtonClass =
+  "inline-flex items-center gap-1.5 rounded-md border border-indigo-600 px-3 py-1.5 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-50";
+
+function fileStamp() {
+  return new Date().toLocaleDateString("en-GB").replace(/\//g, "-");
+}
+
+function makeFileItem(file: File): FileItem {
+  return {
+    id: `${file.name}-${file.lastModified}-${crypto.randomUUID()}`,
+    file,
+    url: URL.createObjectURL(file),
+    uploadedAt: fileStamp(),
+  };
+}
+
+function FileIcon({ name }: { name: string }) {
+  const extension = name.split(".").pop()?.toUpperCase() ?? "FILE";
+  const tone = extension === "ZIP" ? "bg-amber-500" : extension === "SQL" ? "bg-blue-500" : "bg-red-500";
+
+  return (
+    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white shadow-sm">
+      <div className="relative h-9 w-8 rounded border border-slate-200 bg-slate-50">
+        <div className="absolute right-0 top-0 h-2 w-2 rounded-bl border-b border-l border-slate-200 bg-white" />
+        <span className={`absolute left-1 top-3 rounded px-1 py-0.5 text-[8px] font-bold leading-none text-white ${tone}`}>
+          {extension.slice(0, 3)}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function FileSection({
+  title,
+  actionLabel,
+  icon: Icon,
+  files,
+  accept,
+  multiple = true,
+  onAdd,
+  onRemove,
+  onPreview,
+}: FileSectionProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <div>
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <span className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+          <Icon size={16} className="text-slate-600" />
+          {title}
+        </span>
+        <button
+          className={actionButtonClass}
+          type="button"
+          onClick={() => inputRef.current?.click()}
+        >
+          <Plus size={15} />
+          {actionLabel}
+        </button>
+        <input
+          ref={inputRef}
+          accept={accept}
+          className="sr-only"
+          multiple={multiple}
+          type="file"
+          onChange={(event) => {
+            onAdd(event.target.files);
+            event.target.value = "";
+          }}
+        />
+      </div>
+
+      <div className="space-y-3">
+        {files.length === 0 ? (
+          <div className="rounded-lg border border-dashed border-slate-300 bg-white px-4 py-4 text-sm text-slate-500">
+            No file selected
+          </div>
+        ) : (
+          files.map((item) => (
+            <div
+              key={item.id}
+              className="flex items-center gap-4 rounded-lg border border-slate-200 bg-white p-3 shadow-sm"
+            >
+              {title.toLowerCase().includes("cover") ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={item.url}
+                  alt=""
+                  className="h-12 w-12 rounded-lg border border-slate-200 object-cover"
+                />
+              ) : (
+                <FileIcon name={item.file.name} />
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold text-slate-900">
+                  {item.file.name}
+                </p>
+                <div className="mt-2 flex flex-wrap items-center gap-5 text-xs font-medium">
+                  <span className="flex items-center gap-1.5 text-slate-600">
+                    <Clock3 size={14} />
+                    {item.uploadedAt}
+                  </span>
+                  <span className="flex items-center gap-1.5 text-emerald-600">
+                    <CheckCircle2 size={14} />
+                    Uploaded
+                  </span>
+                </div>
+              </div>
+              <div className="flex shrink-0 items-center gap-3">
+                <button
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-700 transition hover:bg-indigo-100"
+                  type="button"
+                  title="Preview"
+                  onClick={() =>
+                    onPreview({
+                      name: item.file.name,
+                      url: item.url,
+                      type: item.file.type,
+                    })
+                  }
+                >
+                  <Eye size={16} />
+                </button>
+                <a
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 transition hover:bg-emerald-100"
+                  href={item.url}
+                  download={item.file.name}
+                  title="Download"
+                >
+                  <Download size={16} />
+                </a>
+                <button
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-red-50 text-red-600 transition hover:bg-red-100"
+                  type="button"
+                  title="Remove"
+                  onClick={() => onRemove(item.id)}
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+function PreviewModal({
+  file,
+  onClose,
+}: {
+  file: PreviewFile;
+  onClose: () => void;
+}) {
+  const isImage = file.type.startsWith("image/");
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4"
+      onClick={(event) => event.target === event.currentTarget && onClose()}
+    >
+      <div className="flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-xl bg-white shadow-2xl">
+        <div className="flex items-center justify-between gap-4 border-b border-slate-200 px-4 py-3">
+          <p className="truncate text-sm font-semibold text-slate-900">
+            {file.name}
+          </p>
+          <button
+            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+            type="button"
+            onClick={onClose}
+            title="Close preview"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="min-h-[60vh] overflow-auto bg-slate-100 p-4">
+          {isImage ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={file.url}
+              alt={file.name}
+              className="mx-auto max-h-[72vh] max-w-full rounded-lg bg-white object-contain shadow-sm"
+            />
+          ) : (
+            <iframe
+              className="h-[72vh] w-full rounded-lg border border-slate-200 bg-white"
+              src={file.url}
+              title={file.name}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function SubmitProject() {
   const [authorType, setAuthorType] = useState<"individual" | "team">(
@@ -26,67 +254,76 @@ export default function SubmitProject() {
   );
   const [teamMembers, setTeamMembers] = useState<string[]>([]);
   const [memberInput, setMemberInput] = useState("");
-  const [currentUserName, setCurrentUserName] = useState("Member User");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(null);
-  const [documentPreviewUrl, setDocumentPreviewUrl] = useState<string | null>(null);
-  const [sourcePreviewUrl, setSourcePreviewUrl] = useState<string | null>(null);
-  const [datasetPreviewUrl, setDatasetPreviewUrl] = useState<string | null>(null);
-  const [projectImagePreviewUrls, setProjectImagePreviewUrls] = useState<string[]>(
-    [],
-  );
-  const [selectedDocumentName, setSelectedDocumentName] = useState<string | null>(
-    null,
-  );
-  const [selectedSourceName, setSelectedSourceName] = useState<string | null>(null);
-  const [selectedDatasetName, setSelectedDatasetName] = useState<string | null>(
-    null,
-  );
+  const [currentUserName] = useState(() => {
+    if (typeof window === "undefined") return "Member User";
 
-  useEffect(() => {
     const raw = localStorage.getItem("user");
-    if (!raw) return;
+    if (!raw) return "Member User";
 
     try {
       const user = JSON.parse(raw) as { name?: string };
-      if (user.name) setCurrentUserName(user.name);
+      return user.name ?? "Member User";
     } catch {
-      // ignore invalid storage payload
+      return "Member User";
     }
-  }, []);
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [coverFile, setCoverFile] = useState<FileItem | null>(null);
+  const [documentFiles, setDocumentFiles] = useState<FileItem[]>([]);
+  const [sourceFiles, setSourceFiles] = useState<FileItem[]>([]);
+  const [datasetFiles, setDatasetFiles] = useState<FileItem[]>([]);
+  const [finalDocumentationFiles, setFinalDocumentationFiles] = useState<FileItem[]>([]);
+  const [previewFile, setPreviewFile] = useState<PreviewFile | null>(null);
+  const selectedFilesRef = useRef<FileItem[]>([]);
+
+  selectedFilesRef.current = [
+    ...(coverFile ? [coverFile] : []),
+    ...documentFiles,
+    ...sourceFiles,
+    ...datasetFiles,
+    ...finalDocumentationFiles,
+  ];
 
   useEffect(() => {
     return () => {
-      if (coverPreviewUrl) URL.revokeObjectURL(coverPreviewUrl);
-      if (documentPreviewUrl) URL.revokeObjectURL(documentPreviewUrl);
-      if (sourcePreviewUrl) URL.revokeObjectURL(sourcePreviewUrl);
-      if (datasetPreviewUrl) URL.revokeObjectURL(datasetPreviewUrl);
-      projectImagePreviewUrls.forEach((url) => URL.revokeObjectURL(url));
+      revokeFileItems(selectedFilesRef.current);
     };
-  }, [
-    coverPreviewUrl,
-    documentPreviewUrl,
-    sourcePreviewUrl,
-    datasetPreviewUrl,
-    projectImagePreviewUrls,
-  ]);
-
-  function setSingleFilePreview(
-    file: File | null,
-    currentUrl: string | null,
-    setUrl: (value: string | null) => void,
-  ) {
-    if (currentUrl) URL.revokeObjectURL(currentUrl);
-    if (!file) {
-      setUrl(null);
-      return;
-    }
-    setUrl(URL.createObjectURL(file));
-  }
+  }, []);
 
   const authorValue = authorType === "individual" ? currentUserName : "";
+
+  function revokeFileItems(files: FileItem[]) {
+    files.forEach((item) => URL.revokeObjectURL(item.url));
+  }
+
+  function replaceCover(files: FileList | null) {
+    const file = files?.[0];
+    if (!file) return;
+    if (coverFile) URL.revokeObjectURL(coverFile.url);
+    setCoverFile(makeFileItem(file));
+  }
+
+  function appendFiles(
+    files: FileList | null,
+    setFiles: React.Dispatch<React.SetStateAction<FileItem[]>>,
+  ) {
+    if (!files?.length) return;
+    const selectedItems = Array.from(files).map(makeFileItem);
+    setFiles((prev) => [...prev, ...selectedItems]);
+  }
+
+  function removeFile(
+    id: string,
+    setFiles: React.Dispatch<React.SetStateAction<FileItem[]>>,
+  ) {
+    setFiles((prev) => {
+      const item = prev.find((file) => file.id === id);
+      if (item) URL.revokeObjectURL(item.url);
+      return prev.filter((file) => file.id !== id);
+    });
+  }
 
   function addMember() {
     const name = memberInput.trim();
@@ -116,36 +353,48 @@ export default function SubmitProject() {
       return;
     }
 
+    if (!coverFile) {
+      setError("Please add one cover image.");
+      return;
+    }
+
+    if (documentFiles.length === 0) {
+      setError("Please add at least one manual document.");
+      return;
+    }
+
+    if (sourceFiles.length === 0) {
+      setError("Please add at least one source code ZIP.");
+      return;
+    }
+
+    if (datasetFiles.length === 0) {
+      setError("Please add at least one database file.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
       const formElement = event.currentTarget;
-      const formData = new FormData(formElement);
+      const submitted = new FormData(formElement);
+      const formData = new FormData();
 
+      formData.set("title", String(submitted.get("title") ?? ""));
+      formData.set("tags", String(submitted.get("tags") ?? ""));
+      formData.set("description", String(submitted.get("description") ?? ""));
       formData.set("owner_type", authorType);
       formData.set("team_members", JSON.stringify(teamMembers));
-      formData.set("tags", String(formData.get("tags") ?? ""));
 
-      const coverImage = formData.get("coverImage") as File | null;
-      const document = formData.get("document") as File | null;
-      const sourceCode = formData.get("sourceCode") as File | null;
-      const dataset = formData.get("dataset") as File | null;
-      const projectImages = formData.getAll("projectImages") as File[];
+      formData.set("cover_image", coverFile.file);
+      documentFiles.forEach((item) => formData.append("document[]", item.file));
+      sourceFiles.forEach((item) => formData.append("source_code[]", item.file));
+      datasetFiles.forEach((item) => formData.append("dataset[]", item.file));
+      finalDocumentationFiles.forEach((item) =>
+        formData.append("project_images[]", item.file),
+      );
 
-      formData.delete("coverImage");
-      formData.delete("sourceCode");
-      formData.delete("projectImages");
-      formData.delete("authorType");
-      formData.delete("tag");
-
-      if (coverImage) formData.set("cover_image", coverImage);
-      if (document) formData.set("document", document);
-      if (sourceCode) formData.set("source_code", sourceCode);
-      if (dataset) formData.set("dataset", dataset);
-      projectImages.forEach((file) => formData.append("project_images[]", file));
-
-      const demoLink = String(formData.get("demoLink") ?? "").trim();
-      formData.delete("demoLink");
+      const demoLink = String(submitted.get("demoLink") ?? "").trim();
       if (demoLink) {
         formData.set("demo_link", demoLink);
       }
@@ -169,15 +418,18 @@ export default function SubmitProject() {
       setTeamMembers([]);
       setMemberInput("");
       setAuthorType("individual");
-      setSingleFilePreview(null, coverPreviewUrl, setCoverPreviewUrl);
-      setSingleFilePreview(null, documentPreviewUrl, setDocumentPreviewUrl);
-      setSingleFilePreview(null, sourcePreviewUrl, setSourcePreviewUrl);
-      setSingleFilePreview(null, datasetPreviewUrl, setDatasetPreviewUrl);
-      projectImagePreviewUrls.forEach((url) => URL.revokeObjectURL(url));
-      setProjectImagePreviewUrls([]);
-      setSelectedDocumentName(null);
-      setSelectedSourceName(null);
-      setSelectedDatasetName(null);
+      revokeFileItems([
+        ...(coverFile ? [coverFile] : []),
+        ...documentFiles,
+        ...sourceFiles,
+        ...datasetFiles,
+        ...finalDocumentationFiles,
+      ]);
+      setCoverFile(null);
+      setDocumentFiles([]);
+      setSourceFiles([]);
+      setDatasetFiles([]);
+      setFinalDocumentationFiles([]);
       setMessage("Project submitted successfully.");
     } catch {
       setError("Failed to submit project. Please try again.");
@@ -187,8 +439,14 @@ export default function SubmitProject() {
   }
 
   return (
-    <section className="mx-auto max-w-5xl">
-      <div className="mb-6">
+    <section className="mx-auto w-full max-w-[1600px] rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+      {previewFile && (
+        <PreviewModal
+          file={previewFile}
+          onClose={() => setPreviewFile(null)}
+        />
+      )}
+        <div className="mb-6">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-700">
           Project Submission
         </p>
@@ -289,162 +547,68 @@ export default function SubmitProject() {
           <textarea className={`${inputClass} min-h-24 resize-y`} name="description" placeholder="Write the project abstract" required />
         </label>
 
-        <div className="mt-6 grid gap-5 md:grid-cols-2">
+        <div className="mt-6 space-y-4">
+          <FileSection
+            title="Cover image"
+            actionLabel={coverFile ? "Change Cover Image" : "Add Cover Image"}
+            icon={ImageIcon}
+            files={coverFile ? [coverFile] : []}
+            accept=".jpg,.jpeg,.png,.webp"
+            multiple={false}
+            onAdd={replaceCover}
+            onRemove={() => {
+              if (coverFile) URL.revokeObjectURL(coverFile.url);
+              setCoverFile(null);
+            }}
+            onPreview={setPreviewFile}
+          />
+          <FileSection
+            title="Manual Documentation"
+            actionLabel="Add Manual Document"
+            icon={FileText}
+            files={documentFiles}
+            accept=".pdf,.doc,.docx"
+            onAdd={(files) => appendFiles(files, setDocumentFiles)}
+            onRemove={(id) => removeFile(id, setDocumentFiles)}
+            onPreview={setPreviewFile}
+          />
+          <FileSection
+            title="Source Code ZIP"
+            actionLabel="Add Source Code"
+            icon={FileArchive}
+            files={sourceFiles}
+            accept=".zip"
+            onAdd={(files) => appendFiles(files, setSourceFiles)}
+            onRemove={(id) => removeFile(id, setSourceFiles)}
+            onPreview={setPreviewFile}
+          />
+          <FileSection
+            title="Database"
+            actionLabel="Add Database"
+            icon={Database}
+            files={datasetFiles}
+            accept=".csv,.json,.xlsx,.xls,.zip"
+            onAdd={(files) => appendFiles(files, setDatasetFiles)}
+            onRemove={(id) => removeFile(id, setDatasetFiles)}
+            onPreview={setPreviewFile}
+          />
+          <FileSection
+            title="Finalize Documentation"
+            actionLabel="Add Final Documentation"
+            icon={FileText}
+            files={finalDocumentationFiles}
+            accept=".pdf,.doc,.docx,.ppt,.pptx,.txt"
+            onAdd={(files) => appendFiles(files, setFinalDocumentationFiles)}
+            onRemove={(id) => removeFile(id, setFinalDocumentationFiles)}
+            onPreview={setPreviewFile}
+          />
           <label className="block">
             <span className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
-              <ImageIcon size={16} />
-              Cover picture
+              <Link2 size={16} />
+              Demo link
             </span>
-            <input
-              accept=".jpg,.jpeg,.png,.webp"
-              className={fileClass}
-              name="coverImage"
-              type="file"
-              required
-              onChange={(e) =>
-                setSingleFilePreview(
-                  e.target.files?.[0] ?? null,
-                  coverPreviewUrl,
-                  setCoverPreviewUrl,
-                )
-              }
-            />
-            {coverPreviewUrl && (
-              <a
-                href={coverPreviewUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-2 inline-block text-sm font-medium text-indigo-700 underline"
-              >
-                Preview cover image
-              </a>
-            )}
+            <input className={inputClass} name="demoLink" placeholder="https://example.com/demo" type="url" />
           </label>
-          <label className="block">
-            <span className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
-              <FileText size={16} />
-              PDF
-            </span>
-            <input
-              accept=".pdf,.doc,.docx"
-              className={fileClass}
-              name="document"
-              type="file"
-              required
-              onChange={(e) => {
-                const file = e.target.files?.[0] ?? null;
-                setSelectedDocumentName(file?.name ?? null);
-                setSingleFilePreview(file, documentPreviewUrl, setDocumentPreviewUrl);
-              }}
-            />
-            {documentPreviewUrl && selectedDocumentName && (
-              <a
-                href={documentPreviewUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-2 inline-block text-sm font-medium text-indigo-700 underline"
-              >
-                Preview {selectedDocumentName}
-              </a>
-            )}
-          </label>
-          <label className="block">
-            <span className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
-              <FileArchive size={16} />
-              Source code ZIP
-            </span>
-            <input
-              accept=".zip"
-              className={fileClass}
-              name="sourceCode"
-              type="file"
-              required
-              onChange={(e) => {
-                const file = e.target.files?.[0] ?? null;
-                setSelectedSourceName(file?.name ?? null);
-                setSingleFilePreview(file, sourcePreviewUrl, setSourcePreviewUrl);
-              }}
-            />
-            {sourcePreviewUrl && selectedSourceName && (
-              <a
-                href={sourcePreviewUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-2 inline-block text-sm font-medium text-indigo-700 underline"
-              >
-                Preview {selectedSourceName}
-              </a>
-            )}
-          </label>
-          <label className="block">
-            <span className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
-              <Database size={16} />
-              Dataset
-            </span>
-            <input
-              accept=".csv,.json,.xlsx,.xls,.zip"
-              className={fileClass}
-              name="dataset"
-              type="file"
-              required
-              onChange={(e) => {
-                const file = e.target.files?.[0] ?? null;
-                setSelectedDatasetName(file?.name ?? null);
-                setSingleFilePreview(file, datasetPreviewUrl, setDatasetPreviewUrl);
-              }}
-            />
-            {datasetPreviewUrl && selectedDatasetName && (
-              <a
-                href={datasetPreviewUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-2 inline-block text-sm font-medium text-indigo-700 underline"
-              >
-                Preview {selectedDatasetName}
-              </a>
-            )}
-          </label>
-          <label className="block">
-            <span className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
-              <ImageIcon size={16} />
-              Project images
-            </span>
-            <input
-              accept=".jpg,.jpeg,.png,.webp"
-              className={fileClass}
-              multiple
-              name="projectImages"
-              type="file"
-              onChange={(e) => {
-                projectImagePreviewUrls.forEach((url) => URL.revokeObjectURL(url));
-                const urls = Array.from(e.target.files ?? []).map((file) =>
-                  URL.createObjectURL(file),
-                );
-                setProjectImagePreviewUrls(urls);
-              }}
-            />
-            {projectImagePreviewUrls.length > 0 && (
-              <div className="mt-3 grid grid-cols-3 gap-2">
-                {projectImagePreviewUrls.map((url, index) => (
-                  <a
-                    key={`${url}-${index}`}
-                    href={url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="block overflow-hidden rounded-md border border-slate-200"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={url}
-                      alt={`Project preview ${index + 1}`}
-                      className="h-20 w-full object-cover"
-                    />
-                  </a>
-                ))}
-              </div>
-            )}
-          </label>
-          <label className="block"><span className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700"><Link2 size={16} />Demo link</span><input className={inputClass} name="demoLink" placeholder="https://example.com/demo" type="url" /></label>
         </div>
 
         {message && <p className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{message}</p>}

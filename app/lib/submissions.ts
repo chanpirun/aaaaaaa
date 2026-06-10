@@ -8,9 +8,12 @@ type SubmissionApiRecord = {
   owner_name: string;
   description: string;
   cover_image_path: string;
-  document_path: string;
-  source_code_path: string;
-  dataset_path: string;
+  document_path: string | null;
+  document_paths: string[] | null;
+  source_code_path: string | null;
+  source_code_paths: string[] | null;
+  dataset_path: string | null;
+  dataset_paths: string[] | null;
   project_image_paths: string[] | null;
   demo_link: string | null;
   status: "pending" | "approved" | "rejected";
@@ -42,7 +45,23 @@ function toAbsoluteFileUrl(path: string | null | undefined): string | undefined 
   return `${backendBaseUrl}/storage/${path}`;
 }
 
+function toAbsoluteFileUrls(
+  paths: (string | null | undefined)[] | null | undefined,
+): string[] {
+  return (paths ?? [])
+    .map((path) => toAbsoluteFileUrl(path))
+    .filter((path): path is string => Boolean(path));
+}
+
 export function mapSubmissionToProject(item: SubmissionApiRecord): Project {
+  const pdfs = toAbsoluteFileUrls(item.document_paths);
+  const sourceZips = toAbsoluteFileUrls(item.source_code_paths);
+  const datasets = toAbsoluteFileUrls(item.dataset_paths);
+  const finalDocuments = toAbsoluteFileUrls(item.project_image_paths);
+  const fallbackPdf = toAbsoluteFileUrl(item.document_path);
+  const fallbackSourceZip = toAbsoluteFileUrl(item.source_code_path);
+  const fallbackDataset = toAbsoluteFileUrl(item.dataset_path);
+
   return {
     id: String(item.id),
     title: item.title,
@@ -59,12 +78,15 @@ export function mapSubmissionToProject(item: SubmissionApiRecord): Project {
       "https://images.unsplash.com/photo-1492724441997-5dc865305da7",
     description: item.description,
     demoLink: item.demo_link ?? undefined,
-    pdf: toAbsoluteFileUrl(item.document_path),
-    sourceZip: toAbsoluteFileUrl(item.source_code_path),
-    dataset: toAbsoluteFileUrl(item.dataset_path),
-    projectImages: (item.project_image_paths ?? [])
-      .map((p) => toAbsoluteFileUrl(p))
-      .filter((p): p is string => Boolean(p)),
+    pdf: pdfs[0] ?? fallbackPdf,
+    pdfs: pdfs.length > 0 ? pdfs : fallbackPdf ? [fallbackPdf] : [],
+    sourceZip: sourceZips[0] ?? fallbackSourceZip,
+    sourceZips:
+      sourceZips.length > 0 ? sourceZips : fallbackSourceZip ? [fallbackSourceZip] : [],
+    dataset: datasets[0] ?? fallbackDataset,
+    datasets: datasets.length > 0 ? datasets : fallbackDataset ? [fallbackDataset] : [],
+    finalDocuments,
+    projectImages: finalDocuments,
     status: item.status,
     reviewComment: item.review_comment ?? undefined,
     reviewedByRole: item.reviewed_by_role ?? undefined,

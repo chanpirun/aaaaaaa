@@ -61,8 +61,8 @@ export default function ProjectStatus() {
   };
 
   return (
-    <section className="mx-auto max-w-6xl">
-      <div className="mb-6">
+<section className="mx-auto w-full max-w-[1600px] rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+        <div className="mb-6">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-700">
           Project Status
         </p>
