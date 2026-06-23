@@ -1,4 +1,7 @@
-import { Calendar, Globe, Lock, Search, User } from "lucide-react";
+"use client";
+
+import { useState, useMemo } from "react";
+import { Calendar, Globe, Lock, Search, User, Filter } from "lucide-react";
 import Image from "next/image";
 import type { Project } from "@/data/projects";
 
@@ -36,23 +39,57 @@ export default function ProjectList({
   showSearch = true,
   showVisibility = false,
 }: ProjectListProps) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedYear, setSelectedYear] = useState("All");
+
+  const years = useMemo(() => {
+    const uniqueYears = new Set<string>();
+    projects.forEach((p) => {
+      const match = p.date.match(/\b(20\d{2})\b/);
+      if (match) uniqueYears.add(match[1]);
+    });
+    return ["All", ...Array.from(uniqueYears).sort((a, b) => b.localeCompare(a))];
+  }, [projects]);
+
+  const filteredProjects = useMemo(() => {
+    return projects.filter((p) => {
+      const matchSearch =
+        p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.owner.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchYear = selectedYear === "All" || p.date.includes(selectedYear);
+      return matchSearch && matchYear;
+    });
+  }, [projects, searchQuery, selectedYear]);
+
   return (
     <div>
       {showSearch && (
         <div className="mb-16">
-          <div className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white/80 px-6 py-5 shadow-[0_15px_50px_rgba(15,23,42,.06)] backdrop-blur-xl transition hover:shadow-[0_20px_60px_rgba(15,23,42,.09)]">
-            <Search className="h-6 w-6 text-slate-500" />
-            <input
-              className="flex-1 bg-transparent text-slate-700 outline-none placeholder:text-slate-400"
-              placeholder={searchPlaceholder}
-              type="text"
-            />
-            <button
-              suppressHydrationWarning
-              className="rounded-xl bg-indigo-900 px-5 py-2 text-sm font-medium text-white transition hover:scale-105"
-            >
-              Search
-            </button>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center rounded-2xl border border-slate-200 bg-white/80 px-6 py-5 shadow-[0_15px_50px_rgba(15,23,42,.06)] backdrop-blur-xl transition hover:shadow-[0_20px_60px_rgba(15,23,42,.09)]">
+            <div className="flex flex-1 items-center gap-4 border-b border-slate-100 sm:border-none pb-4 sm:pb-0">
+              <Search className="h-6 w-6 text-slate-500" />
+              <input
+                className="flex-1 bg-transparent text-slate-700 outline-none placeholder:text-slate-400"
+                placeholder={searchPlaceholder}
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <div className="flex items-center gap-3 sm:border-l sm:border-slate-200 sm:pl-6">
+              <Filter className="h-5 w-5 text-slate-400" />
+              <select
+                className="bg-transparent text-sm font-medium text-slate-700 outline-none cursor-pointer"
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value)}
+              >
+                {years.map((year) => (
+                  <option key={year} value={year}>
+                    {year === "All" ? "All Years" : year}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
       )}
@@ -60,17 +97,18 @@ export default function ProjectList({
       <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h3 className="text-2xl font-semibold text-slate-900">{title}</h3>
         <span className="w-fit rounded-full bg-orange-100 px-4 py-2 text-sm font-bold text-slate-600">
-          {projects.length} {countLabel}
+          {filteredProjects.length} {countLabel}
         </span>
       </div>
 
       <div className="space-y-8">
-        {projects.map((project) => (
+        {filteredProjects.map((project, index) => (
           <ProjectCard
             actionLabel={actionLabel}
             key={project.id}
             project={project}
             showVisibility={showVisibility}
+            priority={index === 0}
           />
         ))}
       </div>
@@ -82,10 +120,12 @@ function ProjectCard({
   actionLabel,
   project,
   showVisibility,
+  priority = false,
 }: {
   actionLabel: string;
   project: Project;
   showVisibility: boolean;
+  priority?: boolean;
 }) {
   return (
     <article className="group relative overflow-hidden rounded-[30px] border border-slate-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,.06)] transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_30px_90px_rgba(15,23,42,.12)]">
@@ -100,6 +140,7 @@ function ProjectCard({
             sizes="(min-width: 768px) 320px, 100vw"
             src={project.coverImage}
             unoptimized={shouldBypassImageOptimization(project.coverImage)}
+            priority={priority}
           />
           {showVisibility && (
             <span

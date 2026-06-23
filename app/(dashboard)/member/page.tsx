@@ -6,6 +6,7 @@ import MemberDashboard from "./member-dashboard";
 import AllProject from "./allproject";
 import ProjectStatus from "./project-status";
 import SubmitProject from "./submitproject";
+import GroupHub from "./grouphub";
 
 export default function MemberPage() {
   const [activeItem, setActiveItem] = useState<SidebarItemId>("overview");
@@ -19,6 +20,7 @@ export default function MemberPage() {
         {activeItem === "submitproject" && <SubmitProject />}
         {activeItem === "repository" && <AllProject />}
         {activeItem === "projectstatus" && <ProjectStatus />}
+        {activeItem === "grouphub" && <GroupHub />}
       </main>
     </div>
   );

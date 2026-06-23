@@ -8,6 +8,7 @@ import {
   FolderPlus,
   Folders,
   ClipboardList,
+  UsersRound,
   PanelLeft,
   PanelRight,
   LogOut,
@@ -37,6 +38,12 @@ const navItems = [
     label: "Project Status",
     href: "/member/projectstatus",
     icon: ClipboardList,
+  },
+  {
+    id: "grouphub",
+    label: "Group Hub",
+    href: "/member/grouphub",
+    icon: UsersRound,
   },
 ] as const;
 

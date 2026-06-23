@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import Link from "next/link";
+import { X } from "lucide-react";
 import Auth from "./auth/auth";
 
 export default function Header() {
@@ -14,7 +15,7 @@ export default function Header() {
       <div className="w-full border-b border-gray-200 bg-white/90 shadow-sm backdrop-blur-md">
         <div className="flex flex-col gap-2 px-4 py-2.5 md:flex-row md:items-center md:justify-between md:px-6">
           <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-3">
+            <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-80">
               <div className="relative h-14 w-14 overflow-hidden rounded-[1.25rem] shadow-[0_12px_30px_-15px_rgba(15,23,42,0.6)]">
                 <Image
                   src="/RadiceLogoNoText_light.svg"
@@ -32,7 +33,7 @@ export default function Header() {
                   Research Center
                 </p>
               </div>
-            </div>
+            </Link>
 
             <button
               type="button"
@@ -116,20 +117,26 @@ export default function Header() {
       {/* Auth Modal */}
       {showAuth && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-md"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-md"
           onClick={() => setShowAuth(false)}
         >
           <div
-            className="relative w-full max-w-md overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white p-7 shadow-[0_35px_90px_-24px_rgba(15,23,42,0.42)] md:p-9"
+            className="relative w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-slate-800 to-slate-900 p-8 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.7)] md:p-9"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Decorative glow */}
+            <div className="pointer-events-none absolute -top-24 left-1/2 h-48 w-48 -translate-x-1/2 rounded-full bg-violet-600/25 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-16 right-8 h-40 w-40 rounded-full bg-indigo-600/20 blur-3xl" />
+
+            {/* Close button */}
             <button
               onClick={() => setShowAuth(false)}
-              className="absolute right-5 top-5 rounded-md p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+              className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-white/10 hover:text-red-400"
               aria-label="Close login modal"
             >
-              x
+              <X size={18} />
             </button>
+
             <Auth />
           </div>
         </div>

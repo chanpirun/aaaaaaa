@@ -113,7 +113,7 @@ export default function WhoWeArePage() {
                     inline-flex px-5 py-3 rounded-full
                     bg-white/5 border border-white/10
                     text-xs uppercase tracking-[0.28em]
-                    text-indigo-200 
+                    text-indigo-200
                   ">
                     {person.role}
                   </span>
