@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import NotificationBell from "./notification-bell";
+
 export default function DashboardHeader() {
   return (
     <header className="sticky top-0 z-50 w-full">
@@ -27,7 +29,9 @@ export default function DashboardHeader() {
             </div>
           </Link>
 
-          
+          <div className="flex items-center gap-4">
+            <NotificationBell />
+          </div>
         </div>
       </div>
     </header>

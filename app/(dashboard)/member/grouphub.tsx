@@ -151,20 +151,22 @@ function ProjectCard({
   return (
     <div className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:border-slate-300">
       {/* Cover */}
-      <div className="relative h-44 overflow-hidden bg-slate-100">
-        <Image
-          src={project.coverImage}
-          alt={project.title}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-          unoptimized
-        />
+      <div className="relative flex h-48 items-center justify-center overflow-hidden bg-white border-b border-slate-100 p-6">
+        <div className="relative h-full w-full">
+          <Image
+            src={project.coverImage}
+            alt={project.title}
+            fill
+            className="object-contain transition-transform duration-500 group-hover:scale-105 drop-shadow-sm"
+            unoptimized
+          />
+        </div>
         {/* Status overlay */}
-        <div className="absolute right-3 top-3">
+        <div className="absolute right-3 top-3 z-10">
           <StatusBadge status={project.status} />
         </div>
         {/* Type badge overlay */}
-        <div className="absolute left-3 top-3">
+        <div className="absolute left-3 top-3 z-10">
           <TypePill projectType={project.projectType} small />
         </div>
       </div>
@@ -770,7 +772,7 @@ function ContributionUploadModal({
             <FileZone label="Source Code ZIP" acceptDisplay="ZIP" accept=".zip"
               inputRef={sourceRef} file={sourceFile} setFile={setSourceFile}
               accentColor="bg-amber-50 text-amber-600" icon={<FileArchive size={16} />} />
-            <FileZone label="Database" acceptDisplay="CSV, JSON, XLSX, ZIP" accept=".csv,.json,.xlsx,.xls,.zip"
+            <FileZone label="Database" acceptDisplay="SQL, CSV, JSON, XLSX, ZIP, DB" accept=".sql,.db,.csv,.json,.xlsx,.xls,.zip"
               inputRef={dbRef} file={dbFile} setFile={setDbFile}
               accentColor="bg-sky-50 text-sky-600" icon={<Database size={16} />} />
             <FileZone label="Final Documentation" acceptDisplay="PDF, DOC, PPT, TXT" accept=".pdf,.doc,.docx,.ppt,.pptx,.txt"

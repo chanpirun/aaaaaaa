@@ -763,7 +763,7 @@ export default function SubmitProject() {
                 actionLabel="Add Database"
                 icon={Database}
                 files={datasetFiles}
-                accept=".csv,.json,.xlsx,.xls,.zip"
+                accept=".sql,.db,.csv,.json,.xlsx,.xls,.zip"
                 onAdd={(files) => appendFiles(files, setDatasetFiles)}
                 onRemove={(id) => removeFile(id, setDatasetFiles)}
                 onPreview={setPreviewFile}

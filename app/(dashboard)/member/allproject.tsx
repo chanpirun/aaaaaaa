@@ -34,23 +34,24 @@ export default function AllProject() {
   }, []);
 
   return (
-    <section className="mx-auto max-w-5xl">
-      <div className="mb-6 flex items-end justify-between gap-4">
+    <section className="mx-auto w-full">
+      {/* Clean & Minimal Header Box */}
+      <div className="mb-10 flex flex-col justify-between gap-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_2px_10px_rgb(0,0,0,0.04)] sm:flex-row sm:items-end sm:p-8">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-700">
+          <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">
             Project Showcase
           </p>
-          <h1 className="mt-2 text-3xl font-bold text-slate-950">
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
             Repository
           </h1>
-          <p className="mt-1 text-sm text-slate-500">
-            All published research projects approved by the director
+          <p className="mt-2 text-sm text-slate-500">
+            All published research projects approved by the director.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-700">
-          <Globe size={14} />
-          {loading ? "..." : projects.length} Public Projects
+        <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-700 shadow-sm">
+          <Globe size={16} className="text-slate-400" />
+          <span className="font-semibold text-slate-900">{loading ? "..." : projects.length}</span> Public Projects
         </div>
       </div>
 

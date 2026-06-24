@@ -31,7 +31,7 @@ export default function Repository() {
 
   return (
     <section className="bg-linear-to-b from-[#faf8ff] to-white px-6 py-32">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto w-full">
         <div className="mb-16 text-center">
           <span className="inline-flex rounded-full bg-indigo-50 px-5 py-2 text-xs uppercase tracking-[0.28em] text-indigo-700">
             Knowledge Repository

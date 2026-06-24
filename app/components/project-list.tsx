@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Calendar, Globe, Lock, Search, User, Filter } from "lucide-react";
+import { Calendar, Globe, Lock, Search, User, Filter, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import type { Project } from "@/data/projects";
 
@@ -12,12 +12,12 @@ function shouldBypassImageOptimization(src: string): boolean {
 }
 
 const tagColors = [
-  "bg-indigo-50 text-indigo-700 border border-indigo-100",
-  "bg-violet-50 text-violet-700 border border-violet-100",
-  "bg-emerald-50 text-emerald-700 border border-emerald-100",
-  "bg-amber-50 text-amber-700 border border-amber-100",
-  "bg-sky-50 text-sky-700 border border-sky-100",
-  "bg-rose-50 text-rose-700 border border-rose-100",
+  "bg-indigo-50/80 text-indigo-700 border border-indigo-100/50",
+  "bg-violet-50/80 text-violet-700 border border-violet-100/50",
+  "bg-emerald-50/80 text-emerald-700 border border-emerald-100/50",
+  "bg-amber-50/80 text-amber-700 border border-amber-100/50",
+  "bg-sky-50/80 text-sky-700 border border-sky-100/50",
+  "bg-rose-50/80 text-rose-700 border border-rose-100/50",
 ];
 
 type ProjectListProps = {
@@ -62,24 +62,24 @@ export default function ProjectList({
   }, [projects, searchQuery, selectedYear]);
 
   return (
-    <div>
+    <div className="w-full">
       {showSearch && (
-        <div className="mb-16">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center rounded-2xl border border-slate-200 bg-white/80 px-6 py-5 shadow-[0_15px_50px_rgba(15,23,42,.06)] backdrop-blur-xl transition hover:shadow-[0_20px_60px_rgba(15,23,42,.09)]">
-            <div className="flex flex-1 items-center gap-4 border-b border-slate-100 sm:border-none pb-4 sm:pb-0">
-              <Search className="h-6 w-6 text-slate-500" />
+        <div className="mb-12">
+          <div className="group flex flex-col gap-4 sm:flex-row sm:items-center rounded-2xl border border-slate-200/60 bg-white/80 px-6 py-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur-xl transition-all duration-300 focus-within:border-indigo-300 focus-within:shadow-[0_8px_30px_rgb(79,70,229,0.08)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)]">
+            <div className="flex flex-1 items-center gap-4 border-b border-slate-100/50 sm:border-none pb-4 sm:pb-0">
+              <Search className="h-5 w-5 text-slate-400 transition-colors group-focus-within:text-indigo-500" />
               <input
-                className="flex-1 bg-transparent text-slate-700 outline-none placeholder:text-slate-400"
+                className="flex-1 bg-transparent text-sm font-medium text-slate-800 outline-none placeholder:text-slate-400 placeholder:font-normal"
                 placeholder={searchPlaceholder}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <div className="flex items-center gap-3 sm:border-l sm:border-slate-200 sm:pl-6">
-              <Filter className="h-5 w-5 text-slate-400" />
+            <div className="flex items-center gap-3 sm:border-l sm:border-slate-200/60 sm:pl-6">
+              <Filter className="h-4 w-4 text-slate-400" />
               <select
-                className="bg-transparent text-sm font-medium text-slate-700 outline-none cursor-pointer"
+                className="bg-transparent text-sm font-semibold text-slate-700 outline-none cursor-pointer hover:text-indigo-600 transition-colors"
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(e.target.value)}
               >
@@ -94,14 +94,20 @@ export default function ProjectList({
         </div>
       )}
 
-      <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h3 className="text-2xl font-semibold text-slate-900">{title}</h3>
-        <span className="w-fit rounded-full bg-orange-100 px-4 py-2 text-sm font-bold text-slate-600">
-          {filteredProjects.length} {countLabel}
-        </span>
+      {/* Clean & Minimal Section Box */}
+      <div className="mb-8 mt-12 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-slate-200 bg-white px-6 py-5 shadow-[0_2px_10px_rgb(0,0,0,0.04)] sm:px-8">
+        <div>
+          <h3 className="text-xl font-bold tracking-tight text-slate-900">{title}</h3>
+          <p className="mt-1 text-sm text-slate-500">Showing {filteredProjects.length} result{filteredProjects.length !== 1 ? 's' : ''}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center justify-center rounded-lg bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-700 border border-slate-200">
+            {filteredProjects.length} {countLabel}
+          </span>
+        </div>
       </div>
 
-      <div className="space-y-8">
+      <div className="grid gap-6">
         {filteredProjects.map((project, index) => (
           <ProjectCard
             actionLabel={actionLabel}
@@ -128,82 +134,83 @@ function ProjectCard({
   priority?: boolean;
 }) {
   return (
-    <article className="group relative overflow-hidden rounded-[30px] border border-slate-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,.06)] transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_30px_90px_rgba(15,23,42,.12)]">
-      <div className="absolute left-0 top-0 h-40 w-full bg-linear-to-r from-indigo-500/5 via-violet-500/5 to-transparent" />
-
-      <div className="relative z-10 grid gap-8 p-7 md:grid-cols-[320px_1fr]">
-        <div className="relative h-60 overflow-hidden rounded-3xl">
+    <article className="group relative overflow-hidden rounded-[24px] border border-slate-200/50 bg-white/70 p-3 shadow-sm backdrop-blur-md transition-all duration-500 hover:-translate-y-1 hover:border-indigo-300/50 hover:bg-white hover:shadow-[0_20px_40px_-15px_rgba(79,70,229,0.15)] sm:p-4">
+      <div className="flex flex-col gap-6 md:flex-row md:items-stretch md:gap-8">
+        
+        {/* Image Container */}
+        <div className="relative h-[220px] w-full shrink-0 overflow-hidden rounded-[20px] shadow-inner md:h-auto md:w-[320px]">
+          <div className="absolute inset-0 bg-slate-100/50" />
           <Image
             alt={project.title}
-            className="object-cover transition duration-700 group-hover:scale-110"
+            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
             fill
             sizes="(min-width: 768px) 320px, 100vw"
             src={project.coverImage}
             unoptimized={shouldBypassImageOptimization(project.coverImage)}
             priority={priority}
           />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/30 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+          
           {showVisibility && (
-            <span
-              className={`absolute right-3 top-3 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold shadow-sm ${
+            <div className="absolute left-4 top-4 z-10">
+              <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest shadow-sm backdrop-blur-md transition-all ${
                 project.visibility === "public"
-                  ? "bg-indigo-600 text-white"
-                  : "bg-white/90 text-slate-600"
-              }`}
-            >
-              {project.visibility === "public" ? (
-                <Globe size={10} />
-              ) : (
-                <Lock size={10} />
-              )}
-              {project.visibility === "public" ? "Public" : "Private"}
-            </span>
+                  ? "bg-white/90 text-indigo-700 border border-white/20"
+                  : "bg-slate-900/80 text-white border border-slate-700/50"
+              }`}>
+                {project.visibility === "public" ? <Globe size={12} strokeWidth={2.5} /> : <Lock size={12} strokeWidth={2.5} />}
+                {project.visibility === "public" ? "Public" : "Private"}
+              </span>
+            </div>
           )}
         </div>
 
-        <div className="flex flex-col justify-center">
-          <div className="mb-5 flex flex-wrap gap-3">
-            {project.tags.map((tag, index) => (
-              <span
-                className={`rounded-full px-4 py-2 text-xs font-medium transition-all duration-300 hover:-translate-y-1 hover:scale-105 ${
-                  tagColors[index % tagColors.length]
-                }`}
-                key={tag}
-              >
-                {tag}
-              </span>
-            ))}
+        {/* Content Container */}
+        <div className="flex flex-1 flex-col justify-between py-2 pr-2 md:py-4 md:pr-6">
+          <div>
+            <div className="mb-4 flex flex-wrap gap-2">
+              {project.tags.map((tag, index) => (
+                <span
+                  key={tag}
+                  className={`rounded-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors duration-300 ${tagColors[index % tagColors.length]}`}
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+
+            <h4 className="text-xl font-extrabold tracking-tight text-slate-900 transition-colors duration-300 group-hover:text-indigo-600 sm:text-2xl lg:text-[26px] lg:leading-tight">
+              {project.title}
+            </h4>
+
+            <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-slate-600 sm:mt-4">
+              {project.description}
+            </p>
           </div>
 
-          <h4 className="text-3xl font-semibold tracking-tight text-slate-900 transition group-hover:text-indigo-700">
-            {project.title}
-          </h4>
+          <div className="mt-8 flex flex-col gap-4 border-t border-slate-100 pt-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+            <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-500">
+              <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 transition-colors group-hover:bg-indigo-50/40 group-hover:text-indigo-700">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-200 text-slate-500 group-hover:bg-indigo-200 group-hover:text-indigo-700 transition-colors">
+                  <User size={12} strokeWidth={3} />
+                </div>
+                {project.owner}
+              </div>
+              <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 transition-colors group-hover:bg-indigo-50/40 group-hover:text-indigo-700">
+                <Calendar size={14} className="text-slate-400 group-hover:text-indigo-500 transition-colors" />
+                {project.date}
+              </div>
+            </div>
 
-          <p className="mt-5 leading-8 text-slate-600">{project.description}</p>
-
-          <div className="mt-7 flex flex-wrap items-center gap-5 text-sm text-slate-500">
-            <span className="inline-flex items-center gap-2">
-              <User className="h-4 w-4 text-slate-500" />
-              {project.owner}
-            </span>
-            <span className="inline-flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-slate-500" />
-              {project.date}
-            </span>
-          </div>
-
-          <div className="mt-8">
-            <button
-              suppressHydrationWarning
-              className="group/link inline-flex items-center gap-3 font-medium text-indigo-700"
-            >
+            <button className="group/btn inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-slate-900/10 transition-all duration-300 hover:bg-indigo-600 hover:shadow-lg hover:shadow-indigo-500/25 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
               {actionLabel}
-              <span className="transition group-hover/link:translate-x-2">
-                -&gt;
-              </span>
+              <ArrowRight size={16} className="transition-transform duration-300 group-hover/btn:translate-x-1" />
             </button>
           </div>
         </div>
+        
       </div>
     </article>
   );
 }
+
