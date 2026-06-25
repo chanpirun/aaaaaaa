@@ -799,6 +799,12 @@ function ContributionUploadModal({
 }
 
 
+interface ContribFileItem {
+  id: string;
+  file: File;
+  url: string;
+}
+
 function makeContribFileItem(file: File): ContribFileItem {
   return {
     id: `${file.name}-${file.lastModified}-${Math.random()}`,

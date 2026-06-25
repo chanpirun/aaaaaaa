@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Calendar, Globe, Lock, Search, User, Filter, ArrowRight } from "lucide-react";
+import { Calendar, Globe, Lock, Search, User, Filter, ArrowRight, X, FileText, Download } from "lucide-react";
 import Image from "next/image";
 import type { Project } from "@/data/projects";
 
@@ -133,7 +133,10 @@ function ProjectCard({
   showVisibility: boolean;
   priority?: boolean;
 }) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
+    <>
     <article className="group relative overflow-hidden rounded-[24px] border border-slate-200/50 bg-white/70 p-3 shadow-sm backdrop-blur-md transition-all duration-500 hover:-translate-y-1 hover:border-indigo-300/50 hover:bg-white hover:shadow-[0_20px_40px_-15px_rgba(79,70,229,0.15)] sm:p-4">
       <div className="flex flex-col gap-6 md:flex-row md:items-stretch md:gap-8">
         
@@ -202,7 +205,9 @@ function ProjectCard({
               </div>
             </div>
 
-            <button className="group/btn inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-slate-900/10 transition-all duration-300 hover:bg-indigo-600 hover:shadow-lg hover:shadow-indigo-500/25 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+            <button 
+              onClick={() => setIsModalOpen(true)}
+              className="group/btn inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-slate-900/10 transition-all duration-300 hover:bg-indigo-600 hover:shadow-lg hover:shadow-indigo-500/25 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
               {actionLabel}
               <ArrowRight size={16} className="transition-transform duration-300 group-hover/btn:translate-x-1" />
             </button>
@@ -211,6 +216,128 @@ function ProjectCard({
         
       </div>
     </article>
+
+    {isModalOpen && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 px-4 sm:px-6">
+        {/* Backdrop */}
+        <div 
+          className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"
+          onClick={() => setIsModalOpen(false)}
+        />
+        
+        {/* Modal */}
+        <div className="relative z-10 w-full max-w-3xl overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-slate-900/5">
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 sm:px-8 sm:py-6">
+            <h3 className="text-xl font-bold text-slate-900">Publication Details</h3>
+            <button 
+              onClick={() => setIsModalOpen(false)}
+              className="rounded-full p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+            >
+              <X size={20} strokeWidth={2.5} />
+            </button>
+          </div>
+          
+          {/* Body */}
+          <div className="max-h-[70vh] overflow-y-auto px-6 py-6 sm:px-8 sm:py-8">
+            <div className="mb-4 flex flex-wrap gap-2">
+              {project.tags.map((tag, index) => (
+                <span
+                  key={tag}
+                  className={`rounded-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors duration-300 ${tagColors[index % tagColors.length]}`}
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+
+            <h4 className="mb-4 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+              {project.title}
+            </h4>
+
+            <div className="mb-8 flex items-center gap-4 text-sm font-medium text-slate-500">
+              <span className="flex items-center gap-1.5"><User size={14}/> {project.owner}</span>
+              <span className="h-1 w-1 rounded-full bg-slate-300"></span>
+              <span className="flex items-center gap-1.5"><Calendar size={14}/> {project.date}</span>
+            </div>
+
+            <div className="prose prose-slate prose-indigo max-w-none">
+              <h5 className="text-lg font-bold text-slate-900 mb-2 border-b border-slate-100 pb-2">Project Description</h5>
+              <p className="text-slate-600 leading-relaxed whitespace-pre-wrap">{project.description}</p>
+            </div>
+
+            {/* Documents Section */}
+            <div className="mt-8 rounded-2xl bg-slate-50 border border-slate-100 p-6">
+              <h5 className="mb-4 flex items-center gap-2 text-lg font-bold text-slate-900">
+                <FileText className="text-indigo-600" size={20} />
+                Final Documentation
+              </h5>
+              
+              <div className="grid gap-3 sm:grid-cols-2">
+                {project.pdf && (
+                  <a 
+                    href={project.pdf} 
+                    target="_blank" 
+                    rel="noreferrer"
+                    className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4 transition-all hover:border-indigo-300 hover:shadow-md group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
+                        <FileText size={20} />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold text-slate-900">Main Document</span>
+                        <span className="text-xs font-medium text-slate-500">PDF File</span>
+                      </div>
+                    </div>
+                    <Download size={18} className="text-slate-400 group-hover:text-indigo-600 transition-colors" />
+                  </a>
+                )}
+                
+                {project.finalDocuments?.map((doc, idx) => (
+                  <a 
+                    key={idx}
+                    href={doc} 
+                    target="_blank" 
+                    rel="noreferrer"
+                    className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4 transition-all hover:border-indigo-300 hover:shadow-md group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
+                        <FileText size={20} />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold text-slate-900">Document {idx + 1}</span>
+                        <span className="text-xs font-medium text-slate-500">Attachment</span>
+                      </div>
+                    </div>
+                    <Download size={18} className="text-slate-400 group-hover:text-indigo-600 transition-colors" />
+                  </a>
+                ))}
+
+                {!project.pdf && (!project.finalDocuments || project.finalDocuments.length === 0) && (
+                  <div className="col-span-full py-4 text-center text-sm font-medium text-slate-500">
+                    No documentation available for this publication yet.
+                  </div>
+                )}
+              </div>
+            </div>
+
+          </div>
+          
+          {/* Footer */}
+          <div className="border-t border-slate-100 bg-slate-50/50 px-6 py-4 sm:px-8 sm:py-5 flex justify-end">
+            <button 
+              onClick={() => setIsModalOpen(false)}
+              className="rounded-xl bg-slate-900 px-6 py-2.5 text-sm font-bold text-white shadow-md transition-all hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }
 
