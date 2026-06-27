@@ -416,3 +416,24 @@ export async function deleteTeamDocument(token: string, id: number): Promise<voi
   }
 }
 
+export async function inviteMember(
+  token: string,
+  email: string
+): Promise<{ message: string }> {
+  const response = await fetch("/api/members/invite", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ email }),
+  });
+
+  const json = await response.json();
+  if (!response.ok) {
+    throw new Error(json?.message ?? "Failed to invite member.");
+  }
+  return json;
+}
+
+

@@ -27,6 +27,7 @@ import {
   AlertTriangle,
   Upload,
   Plus,
+  UserPlus,
 } from "lucide-react";
 import {
   fetchGroupHubProjects,
@@ -37,6 +38,7 @@ import {
   createTeamDocument,
   deleteTeamDocument,
   fetchMembers,
+  inviteMember,
   type GroupHubProject,
   type ProjectType,
   type TeamDocument,
@@ -949,6 +951,95 @@ function ContribFileZone({
   );
 }
 
+// ─── Invite Member Modal ───────────────────────────────────────────────────────
+
+function InviteMemberModal({
+  onClose,
+}: {
+  onClose: () => void;
+}) {
+  const [email, setEmail] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
+
+    const token = getAuthToken();
+    if (!token) return;
+
+    setSubmitting(true);
+    try {
+      const res = await inviteMember(token, email.trim());
+      setSuccess(res.message);
+      setEmail("");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to invite member.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm"
+      onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_30px_80px_-20px_rgba(15,23,42,0.45)]"
+        onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3 mb-4">
+          <h2 className="text-lg font-bold text-slate-900 leading-tight">Add Member to Team</h2>
+          <button onClick={onClose} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-800">
+            <X size={18} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {error && (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-xs text-red-700 font-medium">
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-xs text-emerald-700 font-medium font-semibold">
+              {success}
+            </div>
+          )}
+
+          <div>
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              Email Address
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="friend@email.com"
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-800 shadow-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+              required
+            />
+            <p className="mt-1.5 text-[10px] text-slate-400 leading-relaxed font-semibold">
+              Enter the email of the person you want to add. They must already have an account on the platform. They will automatically be added to your current project submissions.
+            </p>
+          </div>
+
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+            <button type="button" onClick={onClose}
+              className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">
+              Close
+            </button>
+            <button type="submit" disabled={submitting}
+              className="inline-flex items-center gap-2 rounded-xl bg-indigo-900 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-800 transition disabled:opacity-50 shadow-sm shadow-indigo-200">
+              {submitting ? "Inviting..." : "Send Invite"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 
@@ -962,6 +1053,7 @@ export default function GroupHub() {
   const [teamDocs, setTeamDocs] = useState<TeamDocument[]>([]);
   const [teamDocsLoading, setTeamDocsLoading] = useState(true);
   const [showContributionModal, setShowContributionModal] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
 
   async function loadTeamDocuments() {
     setTeamDocsLoading(true);
@@ -1130,6 +1222,13 @@ export default function GroupHub() {
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
+          <button
+            onClick={() => setShowInviteModal(true)}
+            className="inline-flex items-center gap-2 rounded-lg border border-indigo-250 bg-indigo-50/40 px-4 py-2.5 text-xs font-bold text-indigo-900 transition hover:bg-indigo-50 shadow-sm"
+          >
+            <UserPlus size={13} />
+            Add Member
+          </button>
           <button
             onClick={() => setShowContributionModal(true)}
             className="inline-flex items-center gap-2 rounded-lg bg-indigo-950 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-indigo-900 shadow-sm"
@@ -1503,6 +1602,13 @@ export default function GroupHub() {
             setTeamDocs((prev) => [newDoc, ...prev]);
             setShowContributionModal(false);
           }}
+        />
+      )}
+
+      {/* Invite Member Modal */}
+      {showInviteModal && (
+        <InviteMemberModal
+          onClose={() => setShowInviteModal(false)}
         />
       )}
     </div>

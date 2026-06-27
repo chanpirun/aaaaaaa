@@ -16,7 +16,7 @@ export default function Header() {
         <div className="flex flex-col gap-2 px-4 py-2.5 md:flex-row md:items-center md:justify-between md:px-6">
           <div className="flex items-center justify-between gap-2">
             <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-80">
-              <div className="relative h-14 w-14 overflow-hidden rounded-[1.25rem] shadow-[0_12px_30px_-15px_rgba(15,23,42,0.6)]">
+              <div className="relative h-14 w-14 overflow-hidden rounded-[1.25rem] ">
                 <Image
                   src="/RadiceLogoNoText_light.svg"
                   alt="RaDiCe Logo"
