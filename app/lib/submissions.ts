@@ -20,13 +20,21 @@ type SubmissionApiRecord = {
   user?: { id: number; name: string; email: string };
   description: string;
   cover_image_path: string;
+  cover_image_url?: string | null;
   document_path: string | null;
+  document_url?: string | null;
   document_paths: string[] | null;
+  document_urls?: string[] | null;
   source_code_path: string | null;
+  source_code_url?: string | null;
   source_code_paths: string[] | null;
+  source_code_urls?: string[] | null;
   dataset_path: string | null;
+  dataset_url?: string | null;
   dataset_paths: string[] | null;
+  dataset_urls?: string[] | null;
   project_image_paths: string[] | null;
+  project_image_urls?: string[] | null;
   demo_link: string | null;
   status: "pending" | "approved" | "rejected";
   review_comment: string | null;
@@ -53,6 +61,7 @@ export type GroupContribution = {
   category: "manuscript" | "frontend" | "backend" | "database" | "postman";
   file_path: string;
   file_name: string;
+  file_url?: string | null;
   created_at: string;
 };
 
@@ -66,12 +75,16 @@ export type TeamDocument = {
   tagged_member_names: string[] | null;
   manual_doc_path: string | null;
   manual_doc_name: string | null;
+  manual_doc_url?: string | null;
   source_code_path: string | null;
   source_code_name: string | null;
+  source_code_url?: string | null;
   database_path: string | null;
   database_name: string | null;
+  database_url?: string | null;
   final_doc_path: string | null;
   final_doc_name: string | null;
+  final_doc_url?: string | null;
   created_at: string;
 };
 
@@ -105,13 +118,13 @@ function toAbsoluteFileUrls(
 }
 
 export function mapSubmissionToProject(item: SubmissionApiRecord): Project {
-  const pdfs = toAbsoluteFileUrls(item.document_paths);
-  const sourceZips = toAbsoluteFileUrls(item.source_code_paths);
-  const datasets = toAbsoluteFileUrls(item.dataset_paths);
-  const finalDocuments = toAbsoluteFileUrls(item.project_image_paths);
-  const fallbackPdf = toAbsoluteFileUrl(item.document_path);
-  const fallbackSourceZip = toAbsoluteFileUrl(item.source_code_path);
-  const fallbackDataset = toAbsoluteFileUrl(item.dataset_path);
+  const pdfs = item.document_urls ?? [];
+  const sourceZips = item.source_code_urls ?? [];
+  const datasets = item.dataset_urls ?? [];
+  const finalDocuments = item.project_image_urls ?? [];
+  const fallbackPdf = item.document_url;
+  const fallbackSourceZip = item.source_code_url;
+  const fallbackDataset = item.dataset_url;
 
   return {
     id: String(item.id),
@@ -125,16 +138,16 @@ export function mapSubmissionToProject(item: SubmissionApiRecord): Project {
       year: "numeric",
     }),
     coverImage:
-      toAbsoluteFileUrl(item.cover_image_path) ??
+      item.cover_image_url ??
       "https://images.unsplash.com/photo-1492724441997-5dc865305da7",
     description: item.description,
     demoLink: item.demo_link ?? undefined,
-    pdf: pdfs[0] ?? fallbackPdf,
+    pdf: pdfs[0] ?? fallbackPdf ?? undefined,
     pdfs: pdfs.length > 0 ? pdfs : fallbackPdf ? [fallbackPdf] : [],
-    sourceZip: sourceZips[0] ?? fallbackSourceZip,
+    sourceZip: sourceZips[0] ?? fallbackSourceZip ?? undefined,
     sourceZips:
       sourceZips.length > 0 ? sourceZips : fallbackSourceZip ? [fallbackSourceZip] : [],
-    dataset: datasets[0] ?? fallbackDataset,
+    dataset: datasets[0] ?? fallbackDataset ?? undefined,
     datasets: datasets.length > 0 ? datasets : fallbackDataset ? [fallbackDataset] : [],
     finalDocuments,
     projectImages: finalDocuments,

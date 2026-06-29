@@ -33,7 +33,6 @@ import {
   fetchGroupHubProjects,
   deleteSubmission,
   getAuthToken,
-  toAbsoluteFileUrl,
   fetchTeamDocuments,
   createTeamDocument,
   deleteTeamDocument,
@@ -1498,26 +1497,26 @@ export default function GroupHub() {
                       {/* File download links */}
                       {hasFiles && (
                         <div className="flex flex-wrap gap-1.5 border-t border-slate-100 pt-2">
-                          {doc.manual_doc_path && (
-                            <a href={toAbsoluteFileUrl(doc.manual_doc_path)} target="_blank" rel="noopener noreferrer"
+                          {doc.manual_doc_url && (
+                            <a href={doc.manual_doc_url} target="_blank" rel="noopener noreferrer"
                               className="inline-flex items-center gap-1 rounded-md border border-indigo-100 bg-indigo-50 px-2 py-0.5 text-[10px] font-semibold text-indigo-700 hover:bg-indigo-100 transition">
                               <Download size={9} /> Manual
                             </a>
                           )}
-                          {doc.source_code_path && (
-                            <a href={toAbsoluteFileUrl(doc.source_code_path)} target="_blank" rel="noopener noreferrer"
+                          {doc.source_code_url && (
+                            <a href={doc.source_code_url} target="_blank" rel="noopener noreferrer"
                               className="inline-flex items-center gap-1 rounded-md border border-amber-100 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700 hover:bg-amber-100 transition">
                               <Download size={9} /> Source
                             </a>
                           )}
-                          {doc.database_path && (
-                            <a href={toAbsoluteFileUrl(doc.database_path)} target="_blank" rel="noopener noreferrer"
+                          {doc.database_url && (
+                            <a href={doc.database_url} target="_blank" rel="noopener noreferrer"
                               className="inline-flex items-center gap-1 rounded-md border border-sky-100 bg-sky-50 px-2 py-0.5 text-[10px] font-semibold text-sky-700 hover:bg-sky-100 transition">
                               <Download size={9} /> Database
                             </a>
                           )}
-                          {doc.final_doc_path && (
-                            <a href={toAbsoluteFileUrl(doc.final_doc_path)} target="_blank" rel="noopener noreferrer"
+                          {doc.final_doc_url && (
+                            <a href={doc.final_doc_url} target="_blank" rel="noopener noreferrer"
                               className="inline-flex items-center gap-1 rounded-md border border-emerald-100 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 hover:bg-emerald-100 transition">
                               <Download size={9} /> Final Doc
                             </a>
