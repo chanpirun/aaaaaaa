@@ -50,7 +50,10 @@ export default function Login() {
     try {
       const res = await fetch("/api/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
         body: JSON.stringify({ email: email.trim(), password }),
       });
 
@@ -87,9 +90,12 @@ export default function Login() {
     setIsSubmitting(true);
 
     try {
-      const res = await fetch("/api/auth/forgot-password", {
+      const res = await fetch("/api/forgot-password", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
         body: JSON.stringify({ email: email.trim() }),
       });
 
@@ -128,9 +134,12 @@ export default function Login() {
     setIsSubmitting(true);
 
     try {
-      const res = await fetch("/api/auth/reset-password", {
+      const res = await fetch("/api/reset-password", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
         body: JSON.stringify({
           email: email.trim(),
           code: otpCode.trim(),
