@@ -22,11 +22,24 @@ const AUTH_ONLY_PATHS = ["/", "/login"];
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Skip static assets, Next.js internals, and all /api/* /next-api/* routes
+  // Inject the Bearer token header if present on api/next-api requests
+  if (pathname.startsWith("/api") || pathname.startsWith("/next-api")) {
+    const token = request.cookies.get(AUTH_TOKEN_COOKIE)?.value;
+    if (token) {
+      const requestHeaders = new Headers(request.headers);
+      requestHeaders.set("Authorization", `Bearer ${token}`);
+      return NextResponse.next({
+        request: {
+          headers: requestHeaders,
+        },
+      });
+    }
+    return NextResponse.next();
+  }
+
+  // Skip static assets, Next.js internals, and all other metadata
   if (
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/api") ||
-    pathname.startsWith("/next-api") ||
     pathname.startsWith("/favicon") ||
     pathname.startsWith("/_vercel") ||
     pathname.includes(".")
