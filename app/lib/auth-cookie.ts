@@ -18,7 +18,7 @@ const IS_PRODUCTION = process.env.NODE_ENV === "production";
 // ─────────────────────────────────────────────────────────────────────────────
 export const AUTH_COOKIE_OPTIONS = {
   httpOnly: true,
-  secure:   IS_PRODUCTION,
+  secure:   false,
   sameSite: "lax" as const,
   path:     "/",
   maxAge:   60 * 60 * 24, // 24 hours — matches Sanctum expiration
@@ -26,7 +26,7 @@ export const AUTH_COOKIE_OPTIONS = {
 
 export const USER_COOKIE_OPTIONS = {
   httpOnly: false, // user info is safe to read from JS (no secret)
-  secure:   IS_PRODUCTION,
+  secure:   false,
   sameSite: "lax" as const,
   path:     "/",
   maxAge:   60 * 60 * 24,
