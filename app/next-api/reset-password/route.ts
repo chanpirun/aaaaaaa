@@ -3,8 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    // Use internal URL for server-to-server calls to avoid Cloudflare/Nginx SSL loop
     const backendBaseUrl =
-      process.env.BACKEND_API_BASE_URL ?? "http://127.0.0.1:8000";
+      process.env.INTERNAL_BACKEND_URL ??
+      process.env.BACKEND_API_BASE_URL ??
+      "http://127.0.0.1:8000";
 
     const upstream = await fetch(`${backendBaseUrl}/api/reset-password`, {
       method: "POST",
