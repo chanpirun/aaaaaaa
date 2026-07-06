@@ -25,7 +25,7 @@ export default function AllProject() {
           setProjects(rows);
         } else {
           // Fallback: public only
-          const res = await fetch("/api/public/submissions", { cache: "no-store" });
+          const res = await fetch("/next-api/public/submissions", { cache: "no-store" });
           if (!res.ok) throw new Error("Failed to load.");
           const json = await res.json();
           setProjects((json?.data ?? []).map(mapSubmissionToProject));

@@ -62,7 +62,7 @@ export default function Sidebar({ activeItem, onItemSelect }: SidebarProps) {
   const handleLogout = async () => {
     try {
       // Revoke token on backend AND clear the HttpOnly cookie
-      await fetch("/api/logout", {
+      await fetch("/next-api/logout", {
         method: "POST",
         credentials: "include",
       });

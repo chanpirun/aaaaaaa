@@ -43,7 +43,7 @@ export default function NotificationBell() {
 
   const fetchNotifications = async () => {
     try {
-      const res = await fetch("/api/notifications", {
+      const res = await fetch("/next-api/notifications", {
         credentials: "include",
         headers: { Accept: "application/json" },
       });
@@ -60,7 +60,7 @@ export default function NotificationBell() {
 
   const markAsRead = async (id: string, submissionId: number) => {
     try {
-      await fetch(`/api/notifications/${id}/read`, {
+      await fetch(`/next-api/notifications/${id}/read`, {
         method: "POST",
         credentials: "include",
       });
@@ -77,7 +77,7 @@ export default function NotificationBell() {
 
   const markAllAsRead = async () => {
     try {
-      await fetch(`/api/notifications/mark-all-read`, {
+      await fetch(`/next-api/notifications/mark-all-read`, {
         method: "POST",
         credentials: "include",
       });

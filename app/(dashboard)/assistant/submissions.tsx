@@ -49,7 +49,7 @@ export default function AssistantSubmissions() {
 
     setSaving(true);
     try {
-      const response = await fetch(`/api/submissions/${reviewId}/review`, {
+      const response = await fetch(`/next-api/submissions/${reviewId}/review`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

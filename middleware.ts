@@ -22,10 +22,11 @@ const AUTH_ONLY_PATHS = ["/", "/login"];
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Skip static assets, Next.js internals, and all /api/* routes
+  // Skip static assets, Next.js internals, and all /api/* /next-api/* routes
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api") ||
+    pathname.startsWith("/next-api") ||
     pathname.startsWith("/favicon") ||
     pathname.startsWith("/_vercel") ||
     pathname.includes(".")

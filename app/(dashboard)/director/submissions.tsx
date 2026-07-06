@@ -44,7 +44,7 @@ export default function DirectorSubmissions() {
     }
 
     try {
-      const response = await fetch(`/api/submissions/${id}/visibility`, {
+      const response = await fetch(`/next-api/submissions/${id}/visibility`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

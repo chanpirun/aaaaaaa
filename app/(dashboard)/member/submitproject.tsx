@@ -551,7 +551,7 @@ export default function SubmitProject() {
         formData.set("demo_link", demoLink);
       }
 
-      const response = await fetch("/api/submissions", {
+      const response = await fetch("/next-api/submissions", {
         method: "POST",
         credentials: "include",
         body: formData,

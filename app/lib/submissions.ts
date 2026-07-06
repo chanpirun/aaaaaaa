@@ -157,7 +157,7 @@ export function mapSubmissionToGroupHubProject(
 }
 
 export async function fetchProjectsFromApi(): Promise<Project[]> {
-  const response = await fetch("/api/submissions", {
+  const response = await fetch("/next-api/submissions", {
     credentials: "include",
     cache: "no-store",
   });
@@ -169,7 +169,7 @@ export async function fetchProjectsFromApi(): Promise<Project[]> {
 }
 
 export async function fetchGroupHubProjects(): Promise<GroupHubProject[]> {
-  const response = await fetch("/api/submissions?scope=group_hub", {
+  const response = await fetch("/next-api/submissions?scope=group_hub", {
     credentials: "include",
     cache: "no-store",
   });
@@ -181,7 +181,7 @@ export async function fetchGroupHubProjects(): Promise<GroupHubProject[]> {
 }
 
 export async function fetchProjectTypes(): Promise<ProjectType[]> {
-  const response = await fetch("/api/project-types", {
+  const response = await fetch("/next-api/project-types", {
     credentials: "include",
     cache: "no-store",
   });
@@ -192,7 +192,7 @@ export async function fetchProjectTypes(): Promise<ProjectType[]> {
 }
 
 export async function createProjectType(name: string): Promise<ProjectType> {
-  const response = await fetch("/api/project-types", {
+  const response = await fetch("/next-api/project-types", {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
@@ -205,7 +205,7 @@ export async function createProjectType(name: string): Promise<ProjectType> {
 }
 
 export async function fetchMembers(): Promise<{ id: number; name: string; email: string }[]> {
-  const response = await fetch("/api/members", {
+  const response = await fetch("/next-api/members", {
     credentials: "include",
     cache: "no-store",
   });
@@ -216,7 +216,7 @@ export async function fetchMembers(): Promise<{ id: number; name: string; email:
 }
 
 export async function deleteSubmission(submissionId: string): Promise<void> {
-  const response = await fetch(`/api/submissions/${submissionId}`, {
+  const response = await fetch(`/next-api/submissions/${submissionId}`, {
     method: "DELETE",
     credentials: "include",
   });
@@ -228,7 +228,7 @@ export async function deleteSubmission(submissionId: string): Promise<void> {
 }
 
 export async function fetchContributions(submissionId: string): Promise<GroupContribution[]> {
-  const response = await fetch(`/api/submissions/${submissionId}/contributions`, {
+  const response = await fetch(`/next-api/submissions/${submissionId}/contributions`, {
     credentials: "include",
     cache: "no-store",
   });
@@ -247,7 +247,7 @@ export async function uploadContribution(
   formData.append("category", category);
   formData.append("file", file);
 
-  const response = await fetch(`/api/submissions/${submissionId}/contributions`, {
+  const response = await fetch(`/next-api/submissions/${submissionId}/contributions`, {
     method: "POST",
     credentials: "include",
     body: formData,
@@ -259,7 +259,7 @@ export async function uploadContribution(
 }
 
 export async function deleteGroupContribution(contributionId: number): Promise<void> {
-  const response = await fetch(`/api/contributions/${contributionId}`, {
+  const response = await fetch(`/next-api/contributions/${contributionId}`, {
     method: "DELETE",
     credentials: "include",
   });
@@ -271,7 +271,7 @@ export async function deleteGroupContribution(contributionId: number): Promise<v
 }
 
 export async function fetchAllContributions(): Promise<GroupContribution[]> {
-  const response = await fetch("/api/contributions", {
+  const response = await fetch("/next-api/contributions", {
     credentials: "include",
     cache: "no-store",
   });
@@ -284,7 +284,7 @@ export async function fetchAllContributions(): Promise<GroupContribution[]> {
 // ─── Team Documents (standalone — not linked to project submissions) ──────────
 
 export async function fetchTeamDocuments(): Promise<TeamDocument[]> {
-  const response = await fetch("/api/team-documents", {
+  const response = await fetch("/next-api/team-documents", {
     credentials: "include",
     cache: "no-store",
   });
@@ -313,7 +313,7 @@ export async function createTeamDocument(payload: {
   if (payload.databaseFile) formData.append("database_file", payload.databaseFile);
   if (payload.finalDoc) formData.append("final_doc", payload.finalDoc);
 
-  const response = await fetch("/api/team-documents", {
+  const response = await fetch("/next-api/team-documents", {
     method: "POST",
     credentials: "include",
     body: formData,
@@ -324,7 +324,7 @@ export async function createTeamDocument(payload: {
 }
 
 export async function deleteTeamDocument(id: number): Promise<void> {
-  const response = await fetch(`/api/team-documents/${id}`, {
+  const response = await fetch(`/next-api/team-documents/${id}`, {
     method: "DELETE",
     credentials: "include",
   });
@@ -335,7 +335,7 @@ export async function deleteTeamDocument(id: number): Promise<void> {
 }
 
 export async function inviteMember(email: string): Promise<{ message: string }> {
-  const response = await fetch("/api/members/invite", {
+  const response = await fetch("/next-api/members/invite", {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },

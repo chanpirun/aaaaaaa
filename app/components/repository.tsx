@@ -12,7 +12,7 @@ export default function Repository() {
   useEffect(() => {
     async function loadPublic() {
       try {
-        const res = await fetch("/api/public/submissions", {
+        const res = await fetch("/next-api/public/submissions", {
           cache: "no-store",
         });
         if (!res.ok) throw new Error("Failed to load");
