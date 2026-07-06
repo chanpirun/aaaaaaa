@@ -14,7 +14,7 @@ export default function Dashboard() {
       setUser(JSON.parse(storedUser));
     } else {
       // Cookie is HttpOnly — ask our own route if we're authed
-      fetch("/api/auth/me", { credentials: "include" })
+      fetch("/api/me", { credentials: "include" })
         .then((r) => (r.ok ? r.json() : null))
         .then((data) => {
           if (data?.user) setUser(data.user);
@@ -25,7 +25,7 @@ export default function Dashboard() {
   }, []);
 
   const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST", credentials: "include" }).catch(() => {});
+    await fetch("/api/logout", { method: "POST", credentials: "include" }).catch(() => {});
     localStorage.clear();
     sessionStorage.clear();
     router.push("/");
