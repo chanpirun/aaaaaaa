@@ -91,7 +91,7 @@ export default function Login() {
     setIsSubmitting(true);
 
     try {
-      const res = await fetch("/api/forgot-password", {
+      const res = await fetch("/api/auth/forgot-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -133,7 +133,7 @@ export default function Login() {
     setIsSubmitting(true);
 
     try {
-      const res = await fetch("/api/reset-password", {
+      const res = await fetch("/api/auth/reset-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
