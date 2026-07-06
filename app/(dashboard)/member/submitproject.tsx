@@ -20,7 +20,7 @@ import {
   Users,
   X,
 } from "lucide-react";
-import { getAuthToken } from "@/lib/submissions";
+
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100";
@@ -476,8 +476,8 @@ export default function SubmitProject() {
     setMessage(null);
     setError(null);
 
-    const token = getAuthToken();
-    if (!token) {
+    const storedUser = typeof window !== "undefined" ? localStorage.getItem("user") : null;
+    if (!storedUser) {
       setError("Please sign in again before submitting.");
       return;
     }
@@ -553,9 +553,7 @@ export default function SubmitProject() {
 
       const response = await fetch("/api/submissions", {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include",
         body: formData,
       });
 

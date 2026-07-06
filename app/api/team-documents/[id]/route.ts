@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getTokenFromCookie } from "@/lib/auth-cookie";
 
 function backendBaseUrl() {
   return process.env.BACKEND_API_BASE_URL ?? "http://127.0.0.1:8000";
@@ -10,14 +11,16 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const authorization = request.headers.get("authorization") ?? "";
+    const token = await getTokenFromCookie();
+    if (!token) return NextResponse.json({ message: "Unauthenticated." }, { status: 401 });
+
     const upstream = await fetch(
       `${backendBaseUrl()}/api/team-documents/${id}`,
       {
         method: "DELETE",
         headers: {
           Accept: "application/json",
-          Authorization: authorization,
+          Authorization: `Bearer ${token}`,
         },
         cache: "no-store",
       },

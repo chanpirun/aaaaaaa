@@ -59,11 +59,22 @@ export default function Sidebar({ activeItem, onItemSelect }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("auth");
-    sessionStorage.removeItem("auth");
-    router.push("/");
+  const handleLogout = async () => {
+    try {
+      // Revoke token on backend AND clear the HttpOnly cookie
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch {
+      // Ignore network errors — still clear local state
+    } finally {
+      // Clear any remaining local display data
+      localStorage.removeItem("user");
+      localStorage.removeItem("auth");
+      sessionStorage.clear();
+      router.push("/");
+    }
   };
 
   return (

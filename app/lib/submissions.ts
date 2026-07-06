@@ -88,19 +88,12 @@ export type TeamDocument = {
   created_at: string;
 };
 
-export function getAuthToken(): string | null {
-  if (typeof window === "undefined") return null;
-
-  const raw = localStorage.getItem("auth") ?? sessionStorage.getItem("auth");
-  if (!raw) return null;
-
-  try {
-    const parsed = JSON.parse(raw) as { token?: string };
-    return parsed.token ?? null;
-  } catch {
-    return null;
-  }
-}
+// ─────────────────────────────────────────────────────────────────────────────
+// SECURITY: getAuthToken() has been removed.
+// The Sanctum token is now stored in an HttpOnly cookie and is NEVER accessible
+// to JavaScript. All API functions below call Next.js proxy routes which read
+// the cookie server-side and add the Authorization header automatically.
+// ─────────────────────────────────────────────────────────────────────────────
 export function mapSubmissionToProject(item: SubmissionApiRecord): Project {
   const pdfs = item.document_urls ?? [];
   const sourceZips = item.source_code_urls ?? [];
@@ -163,111 +156,69 @@ export function mapSubmissionToGroupHubProject(
   };
 }
 
-export async function fetchProjectsFromApi(token: string): Promise<Project[]> {
+export async function fetchProjectsFromApi(): Promise<Project[]> {
   const response = await fetch("/api/submissions", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: "include",
     cache: "no-store",
   });
 
   const json = await response.json();
-
-  if (!response.ok) {
-    throw new Error(json?.message ?? "Failed to fetch submissions.");
-  }
-
+  if (!response.ok) throw new Error(json?.message ?? "Failed to fetch submissions.");
   const rows: SubmissionApiRecord[] = json?.data ?? [];
   return rows.map(mapSubmissionToProject);
 }
 
-export async function fetchGroupHubProjects(
-  token: string,
-): Promise<GroupHubProject[]> {
+export async function fetchGroupHubProjects(): Promise<GroupHubProject[]> {
   const response = await fetch("/api/submissions?scope=group_hub", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: "include",
     cache: "no-store",
   });
 
   const json = await response.json();
-
-  if (!response.ok) {
-    throw new Error(json?.message ?? "Failed to fetch group hub projects.");
-  }
-
+  if (!response.ok) throw new Error(json?.message ?? "Failed to fetch group hub projects.");
   const rows: SubmissionApiRecord[] = json?.data ?? [];
   return rows.map(mapSubmissionToGroupHubProject);
 }
 
-export async function fetchProjectTypes(token: string): Promise<ProjectType[]> {
+export async function fetchProjectTypes(): Promise<ProjectType[]> {
   const response = await fetch("/api/project-types", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: "include",
     cache: "no-store",
   });
 
   const json = await response.json();
-
-  if (!response.ok) {
-    throw new Error(json?.message ?? "Failed to fetch project types.");
-  }
-
+  if (!response.ok) throw new Error(json?.message ?? "Failed to fetch project types.");
   return json?.data ?? [];
 }
 
-export async function createProjectType(
-  token: string,
-  name: string,
-): Promise<ProjectType> {
+export async function createProjectType(name: string): Promise<ProjectType> {
   const response = await fetch("/api/project-types", {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name }),
   });
 
   const json = await response.json();
-
-  if (!response.ok) {
-    throw new Error(json?.message ?? "Failed to create project type.");
-  }
-
+  if (!response.ok) throw new Error(json?.message ?? "Failed to create project type.");
   return json?.data;
 }
 
-export async function fetchMembers(
-  token: string,
-): Promise<{ id: number; name: string; email: string }[]> {
+export async function fetchMembers(): Promise<{ id: number; name: string; email: string }[]> {
   const response = await fetch("/api/members", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: "include",
     cache: "no-store",
   });
 
   const json = await response.json();
-
-  if (!response.ok) {
-    return [];
-  }
-
+  if (!response.ok) return [];
   return json?.data ?? json ?? [];
 }
 
-export async function deleteSubmission(
-  token: string,
-  submissionId: string,
-): Promise<void> {
+export async function deleteSubmission(submissionId: string): Promise<void> {
   const response = await fetch(`/api/submissions/${submissionId}`, {
     method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: "include",
   });
 
   if (!response.ok) {
@@ -276,26 +227,18 @@ export async function deleteSubmission(
   }
 }
 
-export async function fetchContributions(
-  token: string,
-  submissionId: string,
-): Promise<GroupContribution[]> {
+export async function fetchContributions(submissionId: string): Promise<GroupContribution[]> {
   const response = await fetch(`/api/submissions/${submissionId}/contributions`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: "include",
     cache: "no-store",
   });
 
   const json = await response.json();
-  if (!response.ok) {
-    throw new Error(json?.message ?? "Failed to fetch contributions.");
-  }
+  if (!response.ok) throw new Error(json?.message ?? "Failed to fetch contributions.");
   return json?.data ?? [];
 }
 
 export async function uploadContribution(
-  token: string,
   submissionId: string,
   category: string,
   file: File,
@@ -306,28 +249,19 @@ export async function uploadContribution(
 
   const response = await fetch(`/api/submissions/${submissionId}/contributions`, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: "include",
     body: formData,
   });
 
   const json = await response.json();
-  if (!response.ok) {
-    throw new Error(json?.message ?? "Failed to upload contribution.");
-  }
+  if (!response.ok) throw new Error(json?.message ?? "Failed to upload contribution.");
   return json?.data;
 }
 
-export async function deleteGroupContribution(
-  token: string,
-  contributionId: number,
-): Promise<void> {
+export async function deleteGroupContribution(contributionId: number): Promise<void> {
   const response = await fetch(`/api/contributions/${contributionId}`, {
     method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: "include",
   });
 
   if (!response.ok) {
@@ -336,50 +270,39 @@ export async function deleteGroupContribution(
   }
 }
 
-export async function fetchAllContributions(
-  token: string,
-): Promise<GroupContribution[]> {
+export async function fetchAllContributions(): Promise<GroupContribution[]> {
   const response = await fetch("/api/contributions", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: "include",
     cache: "no-store",
   });
 
   const json = await response.json();
-  if (!response.ok) {
-    throw new Error(json?.message ?? "Failed to fetch all contributions.");
-  }
+  if (!response.ok) throw new Error(json?.message ?? "Failed to fetch all contributions.");
   return json?.data ?? [];
 }
 
 // ─── Team Documents (standalone — not linked to project submissions) ──────────
 
-export async function fetchTeamDocuments(token: string): Promise<TeamDocument[]> {
+export async function fetchTeamDocuments(): Promise<TeamDocument[]> {
   const response = await fetch("/api/team-documents", {
-    headers: { Authorization: `Bearer ${token}` },
+    credentials: "include",
     cache: "no-store",
   });
   const json = await response.json();
-  if (!response.ok) {
-    throw new Error(json?.message ?? "Failed to fetch team documents.");
-  }
+  if (!response.ok) throw new Error(json?.message ?? "Failed to fetch team documents.");
   return json?.data ?? [];
 }
 
-export async function createTeamDocument(
-  token: string,
-  payload: {
-    title: string;
-    description?: string;
-    taggedMemberIds: number[];
-    taggedMemberNames: string[];
-    manualDoc?: File | null;
-    sourceCode?: File | null;
-    databaseFile?: File | null;
-    finalDoc?: File | null;
-  },
-): Promise<TeamDocument> {
+export async function createTeamDocument(payload: {
+  title: string;
+  description?: string;
+  taggedMemberIds: number[];
+  taggedMemberNames: string[];
+  manualDoc?: File | null;
+  sourceCode?: File | null;
+  databaseFile?: File | null;
+  finalDoc?: File | null;
+}): Promise<TeamDocument> {
   const formData = new FormData();
   formData.append("title", payload.title);
   if (payload.description) formData.append("description", payload.description);
@@ -392,20 +315,18 @@ export async function createTeamDocument(
 
   const response = await fetch("/api/team-documents", {
     method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
+    credentials: "include",
     body: formData,
   });
   const json = await response.json();
-  if (!response.ok) {
-    throw new Error(json?.message ?? "Failed to create team document.");
-  }
+  if (!response.ok) throw new Error(json?.message ?? "Failed to create team document.");
   return json?.data;
 }
 
-export async function deleteTeamDocument(token: string, id: number): Promise<void> {
+export async function deleteTeamDocument(id: number): Promise<void> {
   const response = await fetch(`/api/team-documents/${id}`, {
     method: "DELETE",
-    headers: { Authorization: `Bearer ${token}` },
+    credentials: "include",
   });
   if (!response.ok) {
     const json = await response.json().catch(() => ({}));
@@ -413,24 +334,15 @@ export async function deleteTeamDocument(token: string, id: number): Promise<voi
   }
 }
 
-export async function inviteMember(
-  token: string,
-  email: string
-): Promise<{ message: string }> {
+export async function inviteMember(email: string): Promise<{ message: string }> {
   const response = await fetch("/api/members/invite", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email }),
   });
 
   const json = await response.json();
-  if (!response.ok) {
-    throw new Error(json?.message ?? "Failed to invite member.");
-  }
+  if (!response.ok) throw new Error(json?.message ?? "Failed to invite member.");
   return json;
 }
-
-

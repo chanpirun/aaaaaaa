@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { ChevronDown, FolderOpen } from "lucide-react";
 import type { Project, ProjectVisibility } from "@/data/projects";
 import ProjectList from "@/components/project-list";
-import { fetchProjectsFromApi, getAuthToken, mapSubmissionToProject } from "@/lib/submissions";
+import { fetchProjectsFromApi, mapSubmissionToProject } from "@/lib/submissions";
+
 
 type Filter = "all" | ProjectVisibility;
 
@@ -17,10 +18,10 @@ export default function AllProject() {
   useEffect(() => {
     async function load() {
       // Directors use the authenticated endpoint so they can see all (public + private)
-      const token = getAuthToken();
+      const storedUser = typeof window !== "undefined" ? localStorage.getItem("user") : null;
       try {
-        if (token) {
-          const rows = await fetchProjectsFromApi(token);
+        if (storedUser) {
+          const rows = await fetchProjectsFromApi();
           setProjects(rows);
         } else {
           // Fallback: public only

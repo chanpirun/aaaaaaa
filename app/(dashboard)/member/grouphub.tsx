@@ -32,7 +32,6 @@ import {
 import {
   fetchGroupHubProjects,
   deleteSubmission,
-  getAuthToken,
   fetchTeamDocuments,
   createTeamDocument,
   deleteTeamDocument,
@@ -556,9 +555,7 @@ function ContributionUploadModal({
   const finalRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const token = getAuthToken();
-    if (!token) return;
-    fetchMembers(token).then(setMembers).catch(() => {});
+    fetchMembers().then(setMembers).catch(() => {});
   }, []);
 
   const filteredMembers = members.filter(
@@ -582,11 +579,9 @@ function ContributionUploadModal({
     if (!manualFile && !sourceFile && !dbFile && !finalFile) {
       setError("Please upload at least one file."); return;
     }
-    const token = getAuthToken();
-    if (!token) return;
     setUploading(true);
     try {
-      const doc = await createTeamDocument(token, {
+      const doc = await createTeamDocument({
         title: title.trim(),
         description: description.trim() || undefined,
         taggedMemberIds: taggedMembers.map((m) => m.id),
@@ -967,12 +962,9 @@ function InviteMemberModal({
     setError(null);
     setSuccess(null);
 
-    const token = getAuthToken();
-    if (!token) return;
-
     setSubmitting(true);
     try {
-      const res = await inviteMember(token, email.trim());
+      const res = await inviteMember(email.trim());
       setSuccess(res.message);
       setEmail("");
     } catch (err) {
@@ -1056,10 +1048,8 @@ export default function GroupHub() {
 
   async function loadTeamDocuments() {
     setTeamDocsLoading(true);
-    const token = getAuthToken();
-    if (!token) { setTeamDocsLoading(false); return; }
     try {
-      const data = await fetchTeamDocuments(token);
+      const data = await fetchTeamDocuments();
       setTeamDocs(data);
     } catch {
       // silently ignore
@@ -1069,11 +1059,9 @@ export default function GroupHub() {
   }
 
   async function handleDeleteTeamDoc(id: number) {
-    const token = getAuthToken();
-    if (!token) return;
     if (!confirm("Are you sure you want to delete this contribution?")) return;
     try {
-      await deleteTeamDocument(token, id);
+      await deleteTeamDocument(id);
       setTeamDocs((prev) => prev.filter((d) => d.id !== id));
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to delete.");
@@ -1097,12 +1085,10 @@ export default function GroupHub() {
 
   async function handleDelete() {
     if (!deleteTarget) return;
-    const token = getAuthToken();
-    if (!token) return;
     setIsDeleting(true);
     setDeleteError(null);
     try {
-      await deleteSubmission(token, deleteTarget.id);
+      await deleteSubmission(deleteTarget.id);
       setProjects((prev) => prev.filter((p) => p.id !== deleteTarget.id));
       // Close the detail modal if the deleted project was open
       setSelectedProject((prev) => (prev?.id === deleteTarget.id ? null : prev));
@@ -1127,8 +1113,8 @@ export default function GroupHub() {
 
   useEffect(() => {
     async function load() {
-      const token = getAuthToken();
-      if (!token) {
+      const storedUserExists = typeof window !== "undefined" ? localStorage.getItem("user") : null;
+      if (!storedUserExists) {
         setError("Please sign in to view the Group Hub.");
         setLoading(false);
         return;
@@ -1146,7 +1132,7 @@ export default function GroupHub() {
       }
 
       try {
-        const rows = await fetchGroupHubProjects(token);
+        const rows = await fetchGroupHubProjects();
         setProjects(rows);
       } catch (err) {
         setError(

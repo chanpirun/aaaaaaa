@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { ChevronDown, FolderOpen, Search, X } from "lucide-react";
 import Image from "next/image";
 import type { Project } from "@/data/projects";
-import { fetchProjectsFromApi, getAuthToken } from "@/lib/submissions";
+import { fetchProjectsFromApi } from "@/lib/submissions";
 
 type StatusTab = "all" | Project["status"];
 
@@ -19,15 +19,15 @@ export default function ProjectStatus() {
 
   useEffect(() => {
     async function load() {
-      const token = getAuthToken();
-      if (!token) {
+      const storedUser = typeof window !== "undefined" ? localStorage.getItem("user") : null;
+      if (!storedUser) {
         setError("Please sign in to view your project status.");
         setLoading(false);
         return;
       }
 
       try {
-        const rows = await fetchProjectsFromApi(token);
+        const rows = await fetchProjectsFromApi();
         setProjects(rows);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load project status.");

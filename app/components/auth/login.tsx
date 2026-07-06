@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, ArrowLeft, KeyRound, Mail, CheckCircle2 } from "lucide-react";
 
+// token is NO LONGER returned to client — it's in an HttpOnly cookie set server-side
 type LoginResponse = {
-  token: string;
   user: {
     id: number;
     name: string;
@@ -14,6 +14,7 @@ type LoginResponse = {
   };
   message?: string;
 };
+
 
 export default function Login() {
   const router = useRouter();
@@ -37,8 +38,8 @@ export default function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [debugCode, setDebugCode] = useState("");
   const [focusedField, setFocusedField] = useState<string | null>(null);
+
 
   // Sign In submit handler
   const handleLogin = async (e: React.FormEvent) => {
@@ -48,12 +49,14 @@ export default function Login() {
     setIsSubmitting(true);
 
     try {
-      const res = await fetch("/api/login", {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Accept": "application/json"
         },
+        // credentials: 'include' ensures cookies sent back by Next.js route are stored
+        credentials: "include",
         body: JSON.stringify({ email: email.trim(), password }),
       });
 
@@ -64,15 +67,12 @@ export default function Login() {
         return;
       }
 
-      const authPayload = { token: data.token, user: data.user };
-
-      if (rememberMe) {
-        localStorage.setItem("auth", JSON.stringify(authPayload));
-      } else {
-        sessionStorage.setItem("auth", JSON.stringify(authPayload));
+      // SECURITY: token is in an HttpOnly cookie — we NEVER see it here.
+      // Only store non-sensitive user display info in localStorage.
+      if (data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
       }
 
-      localStorage.setItem("user", JSON.stringify(data.user));
       router.push("/member");
     } catch (error) {
       console.error("Login error:", error);
@@ -81,6 +81,7 @@ export default function Login() {
       setIsSubmitting(false);
     }
   };
+
 
   // Forgot Password request handler
   const handleForgotPassword = async (e: React.FormEvent) => {
@@ -106,12 +107,10 @@ export default function Login() {
         return;
       }
 
-      setSuccessMessage("A verification code has been generated.");
-      if (data.debug_code) {
-        setDebugCode(data.debug_code);
-      }
-      // Transition to code validation & new password input view
+      setSuccessMessage("A verification code has been sent to your email.");
+      // SECURITY: debug_code is intentionally NOT displayed — backend no longer sends it
       setView("reset");
+
     } catch (error) {
       console.error("Forgot password error:", error);
       setErrorMessage("Server error. Please try again.");
@@ -162,7 +161,7 @@ export default function Login() {
       setOtpCode("");
       setNewPassword("");
       setConfirmPassword("");
-      setDebugCode("");
+
     } catch (error) {
       console.error("Reset password error:", error);
       setErrorMessage("Server error. Please try again.");
@@ -178,20 +177,6 @@ export default function Login() {
         <div className="flex items-start gap-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-emerald-400">
           <CheckCircle2 size={16} className="mt-0.5 shrink-0" />
           <p className="text-sm leading-tight">{successMessage}</p>
-        </div>
-      )}
-
-      {/* Local Dev OTP Helper Card */}
-      {debugCode && (
-        <div className="flex flex-col gap-1.5 rounded-xl border border-violet-500/30 bg-violet-500/10 p-4 transition-all duration-300">
-          <div className="flex items-center gap-2 text-violet-400 text-xs font-semibold uppercase tracking-wider">
-            <span className="h-1.5 w-1.5 rounded-full bg-violet-400 animate-pulse" />
-            Local Development OTP Helper
-          </div>
-          <p className="text-sm text-slate-300">
-            For local testing, your verification code is:{" "}
-            <span className="font-mono text-base font-black text-violet-300 select-all tracking-widest">{debugCode}</span>
-          </p>
         </div>
       )}
 

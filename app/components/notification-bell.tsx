@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Bell, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { getAuthToken } from "@/lib/submissions";
+
 
 type Notification = {
   id: string;
@@ -43,14 +43,9 @@ export default function NotificationBell() {
 
   const fetchNotifications = async () => {
     try {
-      const token = getAuthToken();
-      if (!token) return;
-
       const res = await fetch("/api/notifications", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
+        credentials: "include",
+        headers: { Accept: "application/json" },
       });
 
       if (res.ok) {
@@ -62,23 +57,18 @@ export default function NotificationBell() {
     }
   };
 
+
   const markAsRead = async (id: string, submissionId: number) => {
     try {
-      const token = getAuthToken();
-      if (!token) return;
-
       await fetch(`/api/notifications/${id}/read`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include",
       });
 
       setNotifications((prev) =>
         prev.map((n) => (n.id === id ? { ...n, read_at: new Date().toISOString() } : n))
       );
       setIsOpen(false);
-      
       router.refresh();
     } catch (err) {
       console.error("Failed to mark as read", err);
@@ -87,14 +77,9 @@ export default function NotificationBell() {
 
   const markAllAsRead = async () => {
     try {
-      const token = getAuthToken();
-      if (!token) return;
-
       await fetch(`/api/notifications/mark-all-read`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include",
       });
 
       setNotifications((prev) =>
@@ -104,6 +89,7 @@ export default function NotificationBell() {
       console.error("Failed to mark all as read", err);
     }
   };
+
 
   const unreadCount = notifications.filter((n) => !n.read_at).length;
 

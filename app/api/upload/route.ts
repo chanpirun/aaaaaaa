@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getTokenFromCookie } from "@/lib/auth-cookie";
 
 function backendBaseUrl() {
   return process.env.BACKEND_API_BASE_URL ?? "http://127.0.0.1:8000";
@@ -6,13 +7,14 @@ function backendBaseUrl() {
 
 export async function POST(request: NextRequest) {
   try {
-    const authorization = request.headers.get("authorization") ?? "";
+    const token = await getTokenFromCookie();
+    if (!token) return NextResponse.json({ message: "Unauthenticated." }, { status: 401 });
 
     const upstream = await fetch(`${backendBaseUrl()}/api/upload`, {
       method: "POST",
       headers: {
         Accept: "application/json",
-        Authorization: authorization,
+        Authorization: `Bearer ${token}`,
         "Content-Type": request.headers.get("content-type") ?? "multipart/form-data",
       },
       body: request.body,
@@ -26,9 +28,6 @@ export async function POST(request: NextRequest) {
       : { message: await upstream.text() };
     return NextResponse.json(body, { status: upstream.status });
   } catch {
-    return NextResponse.json(
-      { message: "Unable to reach backend upload service." },
-      { status: 502 },
-    );
+    return NextResponse.json({ message: "Unable to reach backend upload service." }, { status: 502 });
   }
 }

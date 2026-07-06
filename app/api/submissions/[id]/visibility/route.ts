@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getTokenFromCookie } from "@/lib/auth-cookie";
 
 function backendBaseUrl() {
   return process.env.BACKEND_API_BASE_URL ?? "http://127.0.0.1:8000";
@@ -10,9 +11,10 @@ export async function PATCH(
 ) {
   try {
     const { id } = await context.params;
-    const authorization = request.headers.get("authorization") ?? "";
-    const body = await request.json();
+    const token = await getTokenFromCookie();
+    if (!token) return NextResponse.json({ message: "Unauthenticated." }, { status: 401 });
 
+    const body = await request.json();
     const upstream = await fetch(
       `${backendBaseUrl()}/api/submissions/${id}/visibility`,
       {
@@ -20,7 +22,7 @@ export async function PATCH(
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
-          Authorization: authorization,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(body),
         cache: "no-store",
@@ -33,9 +35,6 @@ export async function PATCH(
       : { message: await upstream.text() };
     return NextResponse.json(data, { status: upstream.status });
   } catch {
-    return NextResponse.json(
-      { message: "Unable to reach backend submissions service." },
-      { status: 502 },
-    );
+    return NextResponse.json({ message: "Unable to reach backend submissions service." }, { status: 502 });
   }
 }

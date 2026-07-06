@@ -1,279 +1,33 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  CheckCircle2,
-  Database,
-  Download,
-  ExternalLink,
-  FileArchive,
-  FileText,
-  ImageIcon,
-  X,
-  XCircle,
-} from "lucide-react";
+import { Search } from "lucide-react";
 import { type Project, type ProjectStatus } from "@/data/projects";
-import {
-  fetchProjectsFromApi,
-  getAuthToken,
-  mapSubmissionToProject,
-} from "@/lib/submissions";
-
-// ── helpers ──────────────────────────────────────────────────────────────────
-
-function StatusBadge({ status }: { status: ProjectStatus }) {
-  const styles: Record<ProjectStatus, string> = {
-    pending: "bg-amber-100 text-amber-700",
-    approved: "bg-emerald-100 text-emerald-700",
-    rejected: "bg-red-100 text-red-600",
-  };
-  const labels: Record<ProjectStatus, string> = {
-    pending: "Pending",
-    approved: "Approved",
-    rejected: "Rejected",
-  };
-  return (
-    <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${styles[status]}`}
-    >
-      {labels[status]}
-    </span>
-  );
-}
-
-// ── Review Modal ──────────────────────────────────────────────────────────────
-
-type ModalProps = {
-  project: Project;
-  onClose: () => void;
-  onUpdate: (id: string, status: ProjectStatus, comment: string) => void;
-};
-
-function ReviewModal({ project, onClose, onUpdate }: ModalProps) {
-  const [comment, setComment] = useState(project.reviewComment ?? "");
-  const [saving, setSaving] = useState(false);
-  const fileGroups = [
-    {
-      icon: FileText,
-      label: "Manual Documentation",
-      files: project.pdfs ?? (project.pdf ? [project.pdf] : []),
-    },
-    {
-      icon: FileArchive,
-      label: "Source Code ZIP",
-      files: project.sourceZips ?? (project.sourceZip ? [project.sourceZip] : []),
-    },
-    {
-      icon: Database,
-      label: "Database",
-      files: project.datasets ?? (project.dataset ? [project.dataset] : []),
-    },
-    {
-      icon: ImageIcon,
-      label: "Final Documentation",
-      files: project.finalDocuments ?? project.projectImages ?? [],
-    },
-  ];
-
-  function handleAction(status: ProjectStatus) {
-    setSaving(true);
-    setTimeout(() => {
-      onUpdate(project.id, status, comment);
-      setSaving(false);
-      onClose();
-    }, 350);
-  }
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 px-4 py-8 overflow-y-auto"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-    >
-      <div className="relative w-full max-w-3xl rounded-2xl bg-white shadow-2xl my-auto">
-        {/* Close */}
-        <button
-          onClick={onClose}
-          className="absolute right-4 top-4 z-10 p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 transition"
-        >
-          <X size={18} />
-        </button>
-
-        {/* Cover */}
-        <div className="h-52 w-full overflow-hidden rounded-t-2xl">
-          <img
-            src={project.coverImage}
-            alt={project.title}
-            className="h-full w-full object-cover"
-          />
-        </div>
-
-        <div className="p-6">
-          {/* Title + status */}
-          <div className="flex items-start gap-3 flex-wrap">
-            <h2 className="flex-1 text-xl font-bold text-slate-950 leading-snug">
-              {project.title}
-            </h2>
-            <StatusBadge status={project.status} />
-          </div>
-
-          {/* Tags */}
-          <div className="mt-3 flex flex-wrap gap-2">
-            {project.tags.map((tag) => (
-              <span
-                key={tag}
-                className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-700"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-
-          {/* Meta */}
-          <div className="mt-4 grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                Owner
-              </p>
-              <p className="mt-0.5 text-slate-700">{project.owner}</p>
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                Type
-              </p>
-              <p className="mt-0.5 capitalize text-slate-700">
-                {project.ownerType}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                Submitted
-              </p>
-              <p className="mt-0.5 text-slate-700">{project.date}</p>
-            </div>
-            {project.demoLink && (
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Demo
-                </p>
-                <a
-                  href={project.demoLink}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-0.5 inline-flex items-center gap-1 text-indigo-600 hover:underline text-sm"
-                >
-                  View Demo <ExternalLink size={12} />
-                </a>
-              </div>
-            )}
-          </div>
-
-          {/* Description */}
-          <div className="mt-5">
-            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">
-              Description
-            </p>
-            <p className="text-sm text-slate-600 leading-relaxed">
-              {project.description}
-            </p>
-          </div>
-
-          {/* Files */}
-          <div className="mt-5">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
-              Submitted Files
-            </p>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {fileGroups.map(({ icon: Icon, label, files }) => (
-                <div
-                  key={label}
-                  className="rounded-lg border border-slate-200 bg-slate-50 p-3"
-                >
-                  <p className="mb-2 flex items-center gap-2 text-xs font-semibold text-slate-600">
-                    <Icon size={14} />
-                    {label}
-                  </p>
-                  {files.length > 0 ? (
-                    <div className="space-y-2">
-                      {files.map((file, index) => (
-                        <a
-                          key={`${label}-${file}`}
-                          href={file}
-                          className="flex items-center gap-2 rounded-md bg-white px-3 py-2 text-xs font-medium text-indigo-700 transition hover:bg-indigo-50"
-                        >
-                          File {index + 1}
-                          <Download size={12} className="ml-auto opacity-60" />
-                        </a>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-xs text-slate-400">No file uploaded</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <hr className="mt-6 border-slate-100" />
-
-          {/* Review section */}
-          <div className="mt-5">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
-              Review Comment
-            </p>
-            <textarea
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 min-h-24 resize-y"
-              placeholder="Add feedback or notes for the submitter..."
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-            />
-
-            <div className="mt-3 flex gap-3 justify-end">
-              <button
-                onClick={() => handleAction("rejected")}
-                disabled={saving}
-                className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 transition disabled:opacity-50"
-              >
-                <XCircle size={16} />
-                Reject
-              </button>
-              <button
-                onClick={() => handleAction("approved")}
-                disabled={saving}
-                className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500 transition disabled:opacity-50"
-              >
-                <CheckCircle2 size={16} />
-                Approve
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Main component ────────────────────────────────────────────────────────────
+import { fetchProjectsFromApi, mapSubmissionToProject } from "@/lib/submissions";
 
 type FilterTab = "all" | ProjectStatus;
 
-export default function Submissions() {
+export default function AssistantSubmissions() {
   const [list, setList] = useState<Project[]>([]);
   const [filter, setFilter] = useState<FilterTab>("all");
-  const [selected, setSelected] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [reviewId, setReviewId] = useState<string | null>(null);
+  const [comment, setComment] = useState("");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     async function load() {
-      const token = getAuthToken();
-      if (!token) {
+      const storedUser = typeof window !== "undefined" ? localStorage.getItem("user") : null;
+      if (!storedUser) {
         setError("Please sign in to view submissions.");
         setLoading(false);
         return;
       }
 
       try {
-        const rows = await fetchProjectsFromApi(token);
+        const rows = await fetchProjectsFromApi();
         setList(rows);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load submissions.");
@@ -285,156 +39,152 @@ export default function Submissions() {
     load();
   }, []);
 
-  const counts = {
-    all: list.length,
-    pending: list.filter((p) => p.status === "pending").length,
-    approved: list.filter((p) => p.status === "approved").length,
-    rejected: list.filter((p) => p.status === "rejected").length,
-  };
-
-  const filtered =
-    filter === "all" ? list : list.filter((p) => p.status === filter);
-
-  async function handleUpdate(id: string, status: ProjectStatus, comment: string) {
-    const token = getAuthToken();
-    if (!token) {
-      setError("Please sign in again to update submissions.");
+  async function handleReview(status: ProjectStatus) {
+    if (!reviewId) return;
+    const storedUser = typeof window !== "undefined" ? localStorage.getItem("user") : null;
+    if (!storedUser) {
+      setError("Please sign in again to submit review.");
       return;
     }
 
-    const response = await fetch(`/api/submissions/${id}/review`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        status,
-        review_comment: comment,
-      }),
-    });
-    const payload = await response.json();
-    if (!response.ok) {
-      setError(payload?.message ?? "Failed to update submission.");
-      return;
-    }
+    setSaving(true);
+    try {
+      const response = await fetch(`/api/submissions/${reviewId}/review`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          status,
+          review_comment: comment,
+        }),
+      });
+      const payload = await response.json();
+      if (!response.ok) {
+        setError(payload?.message ?? "Failed to update review.");
+        return;
+      }
 
-    setList((prev) =>
-      prev.map((p) =>
-        p.id === id ? mapSubmissionToProject(payload.data) : p,
-      ),
-    );
+      setList((prev) =>
+        prev.map((p) => (p.id === reviewId ? mapSubmissionToProject(payload.data) : p))
+      );
+      setReviewId(null);
+      setComment("");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update review.");
+    } finally {
+      setSaving(false);
+    }
   }
 
-  const tabs: { key: FilterTab; label: string }[] = [
-    { key: "all", label: "All" },
-    { key: "pending", label: "Pending" },
-    { key: "approved", label: "Approved" },
-    { key: "rejected", label: "Rejected" },
-  ];
+  const filtered = list.filter((p) => {
+    const matchesTab = filter === "all" ? true : p.status === filter;
+    const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          p.owner.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesTab && matchesSearch;
+  });
+
+  const activeReviewProject = list.find((p) => p.id === reviewId);
 
   return (
-    <section className="mx-auto max-w-5xl">
+    <section className="w-full">
       <div className="mb-6">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-700">
-          Submission Review
+          Assistant Panel
         </p>
         <h1 className="mt-2 text-3xl font-bold text-slate-950">Submissions</h1>
       </div>
+
       {loading && <p className="mb-4 text-sm text-slate-500">Loading submissions...</p>}
       {error && <p className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
-      {/* Filter tabs */}
-      <div className="mb-4 flex gap-1 rounded-xl bg-white border border-slate-200 p-1 w-fit shadow-sm">
-        {tabs.map(({ key, label }) => (
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex gap-2">
           <button
-            key={key}
-            onClick={() => setFilter(key)}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-              filter === key
-                ? "bg-indigo-900 text-white shadow-sm"
-                : "text-slate-600 hover:text-indigo-700"
+            onClick={() => setFilter("all")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              filter === "all" ? "bg-indigo-900 text-white" : "bg-slate-100 text-slate-600"
             }`}
           >
-            {label}
-            <span
-              className={`ml-2 rounded-full px-1.5 py-0.5 text-xs ${
-                filter === key
-                  ? "bg-indigo-700 text-indigo-100"
-                  : "bg-slate-100 text-slate-500"
-              }`}
-            >
-              {counts[key]}
-            </span>
+            All
           </button>
-        ))}
+          <button
+            onClick={() => setFilter("pending")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              filter === "pending" ? "bg-indigo-900 text-white" : "bg-slate-100 text-slate-600"
+            }`}
+          >
+            Pending
+          </button>
+          <button
+            onClick={() => setFilter("approved")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              filter === "approved" ? "bg-indigo-900 text-white" : "bg-slate-100 text-slate-600"
+            }`}
+          >
+            Approved
+          </button>
+          <button
+            onClick={() => setFilter("rejected")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              filter === "rejected" ? "bg-indigo-900 text-white" : "bg-slate-100 text-slate-600"
+            }`}
+          >
+            Rejected
+          </button>
+        </div>
+
+        <div className="relative max-w-xs w-full">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search submissions..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-slate-200 bg-white outline-none shadow-sm focus:border-indigo-500 text-slate-900"
+          />
+        </div>
       </div>
 
-      {/* Table */}
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-slate-100 bg-slate-50 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">
-              <th className="px-4 py-3 w-8">#</th>
-              <th className="px-4 py-3">Title</th>
-              <th className="px-4 py-3 hidden md:table-cell">Owner</th>
-              <th className="px-4 py-3 hidden lg:table-cell">Date</th>
-              <th className="px-4 py-3 hidden lg:table-cell">Tags</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3 text-right">Action</th>
+            <tr className="border-b border-slate-200 bg-slate-50 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              <th className="w-8 px-5 py-3">#</th>
+              <th className="px-5 py-3">Title</th>
+              <th className="px-5 py-3">Owner</th>
+              <th className="px-5 py-3">Status</th>
+              <th className="px-5 py-3 text-right">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {filtered.length === 0 && (
               <tr>
-                <td
-                  colSpan={7}
-                  className="px-4 py-12 text-center text-slate-400 text-sm"
-                >
+                <td colSpan={5} className="px-4 py-12 text-center text-sm text-slate-400">
                   No submissions found.
                 </td>
               </tr>
             )}
             {filtered.map((p, index) => (
-              <tr key={p.id} className="hover:bg-indigo-50/40 transition-colors">
-                <td className="px-4 py-3 text-slate-400 font-mono text-xs">
-                  {index + 1}
+              <tr key={p.id} className="transition-colors hover:bg-indigo-50/20">
+                <td className="px-5 py-4 font-mono text-[11px] text-slate-400">{index + 1}</td>
+                <td className="px-5 py-4 font-semibold text-slate-800">{p.title}</td>
+                <td className="px-5 py-4 text-xs text-slate-600">{p.owner}</td>
+                <td className="px-5 py-4">
+                  <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                    p.status === "approved" ? "bg-emerald-100 text-emerald-700" :
+                    p.status === "rejected" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"
+                  }`}>
+                    {p.status}
+                  </span>
                 </td>
-                <td className="px-4 py-3">
-                  <p className="font-semibold text-slate-900 leading-snug line-clamp-2 max-w-xs">
-                    {p.title}
-                  </p>
-                </td>
-                <td className="px-4 py-3 hidden md:table-cell text-slate-600 whitespace-nowrap">
-                  {p.owner}
-                </td>
-                <td className="px-4 py-3 hidden lg:table-cell text-slate-500 whitespace-nowrap">
-                  {p.date}
-                </td>
-                <td className="px-4 py-3 hidden lg:table-cell">
-                  <div className="flex flex-wrap gap-1">
-                    {p.tags.slice(0, 2).map((tag) => (
-                      <span
-                        key={tag}
-                        className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                    {p.tags.length > 2 && (
-                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-400">
-                        +{p.tags.length - 2}
-                      </span>
-                    )}
-                  </div>
-                </td>
-                <td className="px-4 py-3">
-                  <StatusBadge status={p.status} />
-                </td>
-                <td className="px-4 py-3 text-right">
+                <td className="px-5 py-4 text-right">
                   <button
-                    onClick={() => setSelected(p)}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 transition"
+                    onClick={() => {
+                      setReviewId(p.id);
+                      setComment(p.reviewComment ?? "");
+                    }}
+                    className="inline-flex items-center gap-1 rounded-lg border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-bold text-indigo-700 transition hover:bg-indigo-100"
                   >
                     Review
                   </button>
@@ -445,12 +195,43 @@ export default function Submissions() {
         </table>
       </div>
 
-      {selected && (
-        <ReviewModal
-          project={list.find((p) => p.id === selected.id) ?? selected}
-          onClose={() => setSelected(null)}
-          onUpdate={handleUpdate}
-        />
+      {activeReviewProject && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <h2 className="text-lg font-bold text-slate-900 mb-2">Review Submission</h2>
+            <p className="text-sm text-slate-600 mb-4">{activeReviewProject.title}</p>
+
+            <textarea
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              placeholder="Leave a review comment..."
+              className="w-full rounded-lg border border-slate-200 p-2 text-sm outline-none focus:border-indigo-500 mb-4 min-h-24 resize-none"
+            />
+
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => setReviewId(null)}
+                className="px-4 py-2 border border-slate-200 rounded-lg text-sm text-slate-600"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleReview("rejected")}
+                disabled={saving}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm"
+              >
+                Reject
+              </button>
+              <button
+                onClick={() => handleReview("approved")}
+                disabled={saving}
+                className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm"
+              >
+                Approve
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </section>
   );

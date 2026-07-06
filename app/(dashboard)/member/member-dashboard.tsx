@@ -7,7 +7,7 @@ import {
   Clock,
   XCircle,
 } from "lucide-react";
-import { fetchProjectsFromApi, getAuthToken } from "@/lib/submissions";
+import { fetchProjectsFromApi } from "@/lib/submissions";
 import type { Project } from "@/data/projects";
 
 interface DashboardStats {
@@ -44,14 +44,14 @@ export default function MemberDashboard() {
         }
 
         // Fetch projects
-        const token = getAuthToken();
-        if (!token) {
-          setError("No authentication token found");
+        const storedUserExists = typeof window !== "undefined" ? localStorage.getItem("user") : null;
+        if (!storedUserExists) {
+          setError("No user session found");
           setLoading(false);
           return;
         }
 
-        const projects = await fetchProjectsFromApi(token);
+        const projects = await fetchProjectsFromApi();
 
         setProjects(projects);
         const newStats: DashboardStats = {

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getTokenFromCookie } from "@/lib/auth-cookie";
 
 function backendBaseUrl() {
   return process.env.BACKEND_API_BASE_URL ?? "http://127.0.0.1:8000";
@@ -6,12 +7,11 @@ function backendBaseUrl() {
 
 export async function GET(request: NextRequest) {
   try {
-    const authorization = request.headers.get("authorization") ?? "";
+    const token = await getTokenFromCookie();
+    if (!token) return NextResponse.json({ message: "Unauthenticated." }, { status: 401 });
+
     const upstream = await fetch(`${backendBaseUrl()}/api/notifications`, {
-      headers: {
-        Accept: "application/json",
-        Authorization: authorization,
-      },
+      headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
       cache: "no-store",
     });
 
@@ -21,9 +21,6 @@ export async function GET(request: NextRequest) {
       : { message: await upstream.text() };
     return NextResponse.json(body, { status: upstream.status });
   } catch {
-    return NextResponse.json(
-      { message: "Unable to reach backend service." },
-      { status: 502 },
-    );
+    return NextResponse.json({ message: "Unable to reach backend service." }, { status: 502 });
   }
 }

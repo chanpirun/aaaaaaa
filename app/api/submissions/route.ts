@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getTokenFromCookie } from "@/lib/auth-cookie";
 
 function backendBaseUrl() {
   return process.env.BACKEND_API_BASE_URL ?? "http://127.0.0.1:8000";
@@ -6,12 +7,16 @@ function backendBaseUrl() {
 
 export async function GET(request: NextRequest) {
   try {
-    const authorization = request.headers.get("authorization") ?? "";
-    const upstream = await fetch(`${backendBaseUrl()}/api/submissions`, {
-      headers: {
-        Accept: "application/json",
-        Authorization: authorization,
-      },
+    const token = await getTokenFromCookie();
+    if (!token) return NextResponse.json({ message: "Unauthenticated." }, { status: 401 });
+
+    const scope = request.nextUrl.searchParams.get("scope");
+    const url = scope
+      ? `${backendBaseUrl()}/api/submissions?scope=${encodeURIComponent(scope)}`
+      : `${backendBaseUrl()}/api/submissions`;
+
+    const upstream = await fetch(url, {
+      headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
       cache: "no-store",
     });
 
@@ -21,22 +26,20 @@ export async function GET(request: NextRequest) {
       : { message: await upstream.text() };
     return NextResponse.json(body, { status: upstream.status });
   } catch {
-    return NextResponse.json(
-      { message: "Unable to reach backend submissions service." },
-      { status: 502 },
-    );
+    return NextResponse.json({ message: "Unable to reach backend submissions service." }, { status: 502 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const authorization = request.headers.get("authorization") ?? "";
+    const token = await getTokenFromCookie();
+    if (!token) return NextResponse.json({ message: "Unauthenticated." }, { status: 401 });
 
     const upstream = await fetch(`${backendBaseUrl()}/api/submissions`, {
       method: "POST",
       headers: {
         Accept: "application/json",
-        Authorization: authorization,
+        Authorization: `Bearer ${token}`,
         "Content-Type": request.headers.get("content-type") ?? "multipart/form-data",
       },
       body: request.body,
@@ -50,9 +53,6 @@ export async function POST(request: NextRequest) {
       : { message: await upstream.text() };
     return NextResponse.json(body, { status: upstream.status });
   } catch {
-    return NextResponse.json(
-      { message: "Unable to reach backend submissions service." },
-      { status: 502 },
-    );
+    return NextResponse.json({ message: "Unable to reach backend submissions service." }, { status: 502 });
   }
 }
