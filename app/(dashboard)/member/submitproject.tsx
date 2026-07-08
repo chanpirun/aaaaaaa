@@ -557,10 +557,14 @@ export default function SubmitProject() {
         body: formData,
       });
 
-      const payload = await response.json();
+      let payload: any = null;
+      const contentType = response.headers.get("content-type") ?? "";
+      if (contentType.includes("application/json")) {
+        payload = await response.json();
+      }
 
       if (!response.ok) {
-        setError(payload?.message ?? "Failed to submit project.");
+        setError(payload?.message ?? `Failed to submit project (Status ${response.status}).`);
         return;
       }
 
