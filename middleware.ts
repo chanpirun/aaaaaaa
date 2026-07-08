@@ -25,7 +25,7 @@ export function middleware(request: NextRequest) {
   // Inject the Bearer token header if present on api/next-api requests
   if (pathname.startsWith("/api") || pathname.startsWith("/next-api")) {
     const token = request.cookies.get(AUTH_TOKEN_COOKIE)?.value;
-    if (token) {
+    if (token && (request.method === "GET" || request.method === "DELETE")) {
       const requestHeaders = new Headers(request.headers);
       requestHeaders.set("Authorization", `Bearer ${token}`);
       return NextResponse.next({
