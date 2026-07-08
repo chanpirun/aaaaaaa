@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, ArrowLeft, KeyRound, Mail, CheckCircle2 } from "lucide-react";
 
@@ -39,6 +39,19 @@ export default function Login() {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [focusedField, setFocusedField] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const tokenParam = params.get("token");
+      const emailParam = params.get("email");
+      if (tokenParam && emailParam) {
+        setEmail(emailParam);
+        setOtpCode(tokenParam);
+        setView("reset");
+      }
+    }
+  }, []);
 
 
   // Sign In submit handler
@@ -103,13 +116,12 @@ export default function Login() {
       const data = await res.json();
 
       if (!res.ok) {
-        setErrorMessage(data.message || "Unable to request password reset code.");
+        setErrorMessage(data.message || "Unable to request password reset link.");
         return;
       }
 
-      setSuccessMessage("A verification code has been sent to your email.");
-      // SECURITY: debug_code is intentionally NOT displayed — backend no longer sends it
-      setView("reset");
+      setSuccessMessage(data.message || "If that email exists, a password reset link has been sent.");
+      setView("login");
 
     } catch (error) {
       console.error("Forgot password error:", error);
@@ -142,6 +154,7 @@ export default function Login() {
         body: JSON.stringify({
           email: email.trim(),
           code: otpCode.trim(),
+          token: otpCode.trim(),
           password: newPassword,
           password_confirmation: confirmPassword,
         }),
@@ -150,7 +163,7 @@ export default function Login() {
       const data = await res.json();
 
       if (!res.ok) {
-        setErrorMessage(data.message || "Invalid or expired verification code.");
+        setErrorMessage(data.message || "Invalid or expired reset token.");
         return;
       }
 
@@ -431,7 +444,7 @@ export default function Login() {
               New Credentials
             </h3>
             <p className="text-xs text-slate-400 leading-relaxed">
-              We've generated a reset code for <strong>{email}</strong>. Enter the 6-digit code and your new password.
+              We've generated a password reset token for <strong>{email}</strong>. Please enter the token and your new password.
             </p>
           </div>
 
@@ -441,7 +454,7 @@ export default function Login() {
               htmlFor="otp-code"
               className="block text-xs font-semibold uppercase tracking-widest text-slate-400"
             >
-              6-Digit Reset Code
+              Reset Token
             </label>
             <div
               className={`relative rounded-xl border transition-all duration-200 ${
@@ -453,12 +466,11 @@ export default function Login() {
               <input
                 id="otp-code"
                 type="text"
-                maxLength={6}
                 value={otpCode}
                 onChange={(e) => setOtpCode(e.target.value)}
                 onFocus={() => setFocusedField("otp")}
                 onBlur={() => setFocusedField(null)}
-                placeholder="123456"
+                placeholder="Enter reset token"
                 required
                 className="w-full rounded-xl bg-transparent px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:outline-none font-mono tracking-widest"
               />

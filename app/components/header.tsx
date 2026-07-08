@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { X } from "lucide-react";
 import Auth from "./auth/auth";
@@ -9,6 +9,17 @@ import Auth from "./auth/auth";
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("token");
+      const email = params.get("email");
+      if (token && email) {
+        setShowAuth(true);
+      }
+    }
+  }, []);
 
   return (
     <header suppressHydrationWarning className="sticky top-0 z-50 w-full transition-all duration-300">
