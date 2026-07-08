@@ -48,6 +48,7 @@ type FileSectionProps = {
   onAdd: (files: FileList | null) => void;
   onRemove: (id: string) => void;
   onPreview: (file: PreviewFile) => void;
+  maxSizeLabel?: string;
 };
 
 const actionButtonClass =
@@ -94,6 +95,7 @@ function FileSection({
   onAdd,
   onRemove,
   onPreview,
+  maxSizeLabel,
 }: FileSectionProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragActive, setIsDragActive] = useState(false);
@@ -212,7 +214,7 @@ function FileSection({
               {title}
             </h3>
             <p className="text-[10px] font-medium text-slate-400 truncate uppercase tracking-wider">
-              {acceptLabel}
+              {acceptLabel} {maxSizeLabel ? `• ${maxSizeLabel}` : ""}
             </p>
           </div>
         </div>
@@ -255,7 +257,7 @@ function FileSection({
             {actionLabel}
           </span>
           <span className="mt-0.5 text-[10px] text-slate-400 text-center">
-            Drag & drop or click to upload
+            Drag & drop or click to upload {maxSizeLabel ? `(max ${maxSizeLabel.toLowerCase().replace("max ", "")})` : ""}
           </span>
         </div>
       ) : (
@@ -739,6 +741,7 @@ export default function SubmitProject() {
                   setCoverFile(null);
                 }}
                 onPreview={setPreviewFile}
+                maxSizeLabel="Max 3 MB"
               />
               <FileSection
                 title="Manual Documentation"
@@ -749,6 +752,7 @@ export default function SubmitProject() {
                 onAdd={(files) => appendFiles(files, setDocumentFiles)}
                 onRemove={(id) => removeFile(id, setDocumentFiles)}
                 onPreview={setPreviewFile}
+                maxSizeLabel="Max 30 MB"
               />
               <FileSection
                 title="Source Code ZIP"
@@ -759,6 +763,7 @@ export default function SubmitProject() {
                 onAdd={(files) => appendFiles(files, setSourceFiles)}
                 onRemove={(id) => removeFile(id, setSourceFiles)}
                 onPreview={setPreviewFile}
+                maxSizeLabel="Max 100 MB"
               />
               <FileSection
                 title="Database"
@@ -769,6 +774,7 @@ export default function SubmitProject() {
                 onAdd={(files) => appendFiles(files, setDatasetFiles)}
                 onRemove={(id) => removeFile(id, setDatasetFiles)}
                 onPreview={setPreviewFile}
+                maxSizeLabel="Max 50 MB"
               />
               <div className="md:col-span-2">
                 <FileSection
@@ -780,6 +786,7 @@ export default function SubmitProject() {
                   onAdd={(files) => appendFiles(files, setFinalDocumentationFiles)}
                   onRemove={(id) => removeFile(id, setFinalDocumentationFiles)}
                   onPreview={setPreviewFile}
+                  maxSizeLabel="Max 50 MB"
                 />
               </div>
             </div>
