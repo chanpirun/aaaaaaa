@@ -444,37 +444,8 @@ export default function Login() {
               New Credentials
             </h3>
             <p className="text-xs text-slate-400 leading-relaxed">
-              We've generated a password reset token for <strong>{email}</strong>. Please enter the token and your new password.
+              Please enter and confirm your new password to reset the account password for <strong>{email}</strong>.
             </p>
-          </div>
-
-          {/* OTP Code */}
-          <div className="space-y-1">
-            <label
-              htmlFor="otp-code"
-              className="block text-xs font-semibold uppercase tracking-widest text-slate-400"
-            >
-              Reset Token
-            </label>
-            <div
-              className={`relative rounded-xl border transition-all duration-200 ${
-                focusedField === "otp"
-                  ? "border-violet-500 shadow-[0_0_0_3px_rgba(139,92,246,0.18)]"
-                  : "border-white/10 hover:border-white/20"
-              } bg-white/5`}
-            >
-              <input
-                id="otp-code"
-                type="text"
-                value={otpCode}
-                onChange={(e) => setOtpCode(e.target.value)}
-                onFocus={() => setFocusedField("otp")}
-                onBlur={() => setFocusedField(null)}
-                placeholder="Enter reset token"
-                required
-                className="w-full rounded-xl bg-transparent px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:outline-none font-mono tracking-widest"
-              />
-            </div>
           </div>
 
           {/* New Password */}
@@ -583,7 +554,7 @@ export default function Login() {
               }}
               className="text-xs font-semibold text-slate-400 hover:text-violet-400 transition"
             >
-              Request a new code
+              Request a new link
             </button>
             <button
               type="button"
